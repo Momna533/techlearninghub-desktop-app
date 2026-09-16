@@ -1,0 +1,22 @@
+{
+  "name": "techlearninghub-desktop-app",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Software House and Training Academy Management System",
+  "main": "electron/main.js",
+  "scripts": {
+    "dev": "node scripts/start-dev.mjs",
+    "build": "vite build",
+    "start": "electron ."
+  },
+  "dependencies": {
+    "express": "^5.2.1",
+    "react": "^19.3.0",
+    "react-dom": "^19.3.0"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "^6.1.1",
+    "electron": "^44.4.1",
+    "vite": "^8.3.0"
+  }
+}
