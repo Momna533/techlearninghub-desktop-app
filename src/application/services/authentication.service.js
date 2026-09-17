@@ -1,3 +1,8 @@
+const { PERMISSIONS } = require('../../domain/authorization/permission-codes');
+const {
+  requirePermission,
+} = require('./authorization.service');
+
 const bcrypt = require('bcryptjs');
 const { getDatabase } = require('../../infrastructure/database/connection');
 
@@ -55,15 +60,23 @@ async function authenticateUser({ email, password }) {
     };
   }
 
-  const user = findUserByEmail(email);
+const user = findUserByEmail(email);
 
-  if (!user) {
-    return {
-      success: false,
-      code: 'INVALID_CREDENTIALS',
-      message: 'Invalid email or password.',
-    };
-  }
+console.log('LOGIN DEBUG:', {
+  enteredEmail: email.trim(),
+  userFound: Boolean(user),
+  userId: user?.id,
+  storedEmail: user?.email,
+  hasPasswordHash: Boolean(user?.password_hash),
+});
+
+if (!user) {
+  return {
+    success: false,
+    code: 'INVALID_CREDENTIALS',
+    message: 'Invalid email or password.',
+  };
+}
 
   if (user.status !== 'active') {
     return {
@@ -122,7 +135,20 @@ async function authenticateUser({ email, password }) {
   };
 }
 
-async function createUser({ email, password, displayName = null }) {
+async function createUser({
+  email,
+  password,
+  displayName = null,
+  // Bootstrap creates the first accounts before any session exists.
+  skipAuthorizationCheck = false,
+}) {
+  if (!skipAuthorizationCheck) {
+    const denial = requirePermission(PERMISSIONS.USERS_MANAGE);
+    if (denial) {
+      return denial;
+    }
+  }
+
   if (typeof email !== 'string' || !email.trim()) {
     throw new Error('Email is required.');
   }

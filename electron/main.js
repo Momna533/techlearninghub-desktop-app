@@ -3,8 +3,10 @@ const path = require('node:path');
 const { createHttpApp } = require('../src/infrastructure/http/app');
 const { getFoundationStatus } = require('../src/application/services/foundation.service');
 const { closeDatabase, initializeDatabase } = require('../src/infrastructure/database/connection');
+const { bootstrapAuthorization } = require('../src/application/services/rbac-bootstrap.service');
 const { registerFoundationIpc } = require('./ipc/foundation.ipc');
 const { registerAuthIpc } = require('./ipc/auth.ipc');
+const { registerRbacIpc } = require('./ipc/rbac.ipc');
 
 
 const isDevelopment = Boolean(process.env.ELECTRON_RENDERER_URL);
@@ -30,11 +32,12 @@ function createMainWindow() {
   }
 }
 
-app.whenReady().then(() => {
+app.whenReady().then(async () => {
   try {
     initializeDatabase({
       databasePath: path.join(app.getPath('userData'), 'techlearninghub.sqlite')
     });
+    await bootstrapAuthorization();
   } catch (error) {
     console.error('Failed to initialize the local SQLite database.', error);
     app.quit();
@@ -44,6 +47,7 @@ app.whenReady().then(() => {
   createHttpApp();
   registerFoundationIpc({ ipcMain, getFoundationStatus });
   registerAuthIpc({ ipcMain });
+  registerRbacIpc({ ipcMain });
   createMainWindow();
 
   app.on('activate', () => {

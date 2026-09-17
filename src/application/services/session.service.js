@@ -10,6 +10,8 @@ function setCurrentUser(user) {
         lastLoginAt: user.lastLoginAt,
         createdAt: user.createdAt,
         updatedAt: user.updatedAt,
+        roles: Array.isArray(user.roles) ? user.roles : [],
+        permissions: Array.isArray(user.permissions) ? user.permissions : [],
       }
     : null;
 
@@ -28,9 +30,14 @@ function clearCurrentUser() {
   currentUser = null;
 }
 
+function getSessionPermissions() {
+  return currentUser?.permissions ?? [];
+}
+
 module.exports = {
   setCurrentUser,
   getCurrentUser,
   isAuthenticated,
   clearCurrentUser,
+  getSessionPermissions,
 };

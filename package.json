@@ -7,7 +7,10 @@
   "scripts": {
     "dev": "node scripts/start-dev.mjs",
     "build": "vite build",
-    "start": "electron ."
+    "start": "electron .",
+    "test": "node tests/database/schema.test.js && node tests/authorization/rbac.test.js",
+    "test:schema": "node tests/database/schema.test.js",
+    "test:rbac": "node tests/authorization/rbac.test.js"
   },
   "dependencies": {
     "bcryptjs": "^3.0.3",

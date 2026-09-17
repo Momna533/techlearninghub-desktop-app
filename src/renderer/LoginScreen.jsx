@@ -1,5 +1,7 @@
 import { useState } from 'react';
 
+const isDevelopment = import.meta.env.DEV;
+
 function LoginScreen({ onLogin }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -89,6 +91,24 @@ function LoginScreen({ onLogin }) {
             {isSubmitting ? 'Signing in…' : 'Sign in'}
           </button>
         </form>
+
+      {isDevelopment && (
+  <p className="auth-hint">
+    Fresh databases bootstrap demo accounts:
+    {' '}
+    <code>superadmin@techlearninghub.local</code> /
+    {' '}
+    <code>SuperAdmin123!</code>,
+    {' '}
+    <code>developer@techlearninghub.local</code> /
+    {' '}
+    <code>Developer123!</code>,
+    {' '}
+    <code>hr@techlearninghub.local</code> /
+    {' '}
+    <code>HrUser123!</code>.
+  </p>
+)}
       </section>
     </main>
   );
