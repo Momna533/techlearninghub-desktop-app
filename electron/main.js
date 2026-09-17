@@ -4,6 +4,8 @@ const { createHttpApp } = require('../src/infrastructure/http/app');
 const { getFoundationStatus } = require('../src/application/services/foundation.service');
 const { closeDatabase, initializeDatabase } = require('../src/infrastructure/database/connection');
 const { registerFoundationIpc } = require('./ipc/foundation.ipc');
+const { registerAuthIpc } = require('./ipc/auth.ipc');
+
 
 const isDevelopment = Boolean(process.env.ELECTRON_RENDERER_URL);
 
@@ -41,6 +43,7 @@ app.whenReady().then(() => {
 
   createHttpApp();
   registerFoundationIpc({ ipcMain, getFoundationStatus });
+  registerAuthIpc({ ipcMain });
   createMainWindow();
 
   app.on('activate', () => {

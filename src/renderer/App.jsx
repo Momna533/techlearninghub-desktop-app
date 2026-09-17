@@ -1,35 +1,89 @@
 import { useEffect, useState } from 'react';
+import LoginScreen from './LoginScreen';
+import ProtectedApp from './ProtectedApp';
 
 function App() {
-  const [foundationStatus, setFoundationStatus] = useState('Checking desktop connection…');
-  const [ipcMessage, setIpcMessage] = useState('');
+  const [authState, setAuthState] = useState({
+    status: 'checking',
+    user: null,
+  });
 
   useEffect(() => {
-    window.desktop.getFoundationStatus()
-      .then(({ message }) => setFoundationStatus(message))
-      .catch(() => setFoundationStatus('Desktop connection could not be established.'));
+    let isMounted = true;
+
+    async function restoreSession() {
+      try {
+        const session = await window.desktop.auth.getSession();
+
+        if (!isMounted) return;
+
+        if (session.authenticated) {
+          setAuthState({
+            status: 'authenticated',
+            user: session.user,
+          });
+        } else {
+          setAuthState({
+            status: 'unauthenticated',
+            user: null,
+          });
+        }
+      } catch (error) {
+        console.error('Failed to restore authentication session:', error);
+
+        if (!isMounted) return;
+
+        setAuthState({
+          status: 'unauthenticated',
+          user: null,
+        });
+      }
+    }
+
+    restoreSession();
+
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
-  async function handleIpcTest() {
-    setIpcMessage('Waiting for a response from the main process…');
+  function handleLogin(user) {
+    setAuthState({
+      status: 'authenticated',
+      user,
+    });
+  }
 
+  async function handleLogout() {
     try {
-      const response = await window.desktop.testElectronIpc();
-      setIpcMessage(response.message);
-    } catch {
-      setIpcMessage('The Electron IPC test failed. Check the main-process console.');
+      await window.desktop.auth.logout();
+    } catch (error) {
+      console.error('Logout failed:', error);
+    } finally {
+      setAuthState({
+        status: 'unauthenticated',
+        user: null,
+      });
     }
   }
 
+  if (authState.status === 'checking') {
+    return (
+      <main className="auth-loading">
+        <p>Checking authentication…</p>
+      </main>
+    );
+  }
+
+  if (authState.status === 'unauthenticated') {
+    return <LoginScreen onLogin={handleLogin} />;
+  }
+
   return (
-    <main className="app-shell">
-      <p className="eyebrow">Application foundation</p>
-      <h1>Tech Learning Hub</h1>
-      <p>Software House + Training Academy Management System</p>
-      <p className="status">{foundationStatus}</p>
-      <button type="button" onClick={handleIpcTest}>Test Electron IPC</button>
-      {ipcMessage && <p className="status">{ipcMessage}</p>}
-    </main>
+    <ProtectedApp
+      user={authState.user}
+      onLogout={handleLogout}
+    />
   );
 }
 

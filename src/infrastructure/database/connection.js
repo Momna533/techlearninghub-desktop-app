@@ -19,6 +19,7 @@ function initializeDatabase({ databasePath }) {
   database.exec('PRAGMA busy_timeout = 5000;');
   runMigrations(database);
   activeDatabasePath = databasePath;
+  console.log('SQLite database initialized at:', databasePath);
 
   return database;
 }
