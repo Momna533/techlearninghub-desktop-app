@@ -92,7 +92,8 @@ function StudentForm({ student = null, onSuccess, onCancel }) {
     }
 
     if (!form.guardianName.trim()) {
-      nextErrors.guardianName = 'Guardian/father name is required.';
+      nextErrors.guardianName =
+        'Guardian/father name is required.';
     }
 
     if (!form.phone.trim()) {
@@ -100,10 +101,12 @@ function StudentForm({ student = null, onSuccess, onCancel }) {
     }
 
     if (form.email.trim()) {
-      const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      const emailPattern =
+        /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
       if (!emailPattern.test(form.email.trim())) {
-        nextErrors.email = 'Enter a valid email address.';
+        nextErrors.email =
+          'Enter a valid email address.';
       }
     }
 
@@ -131,7 +134,10 @@ function StudentForm({ student = null, onSuccess, onCancel }) {
         : await createStudent(form);
 
       if (!result.success) {
-        if (result.code === 'VALIDATION_ERROR' && result.details) {
+        if (
+          result.code === 'VALIDATION_ERROR' &&
+          result.details
+        ) {
           setErrors(result.details);
           return;
         }
@@ -145,7 +151,10 @@ function StudentForm({ student = null, onSuccess, onCancel }) {
 
       onSuccess(result.student);
     } catch (error) {
-      console.error('[StudentForm] Submit failed:', error);
+      console.error(
+        '[StudentForm] Submit failed:',
+        error
+      );
 
       setServerError(
         'Something went wrong while saving the student.'
@@ -166,7 +175,10 @@ function StudentForm({ student = null, onSuccess, onCancel }) {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-7">
+    <form
+      onSubmit={handleSubmit}
+      className="space-y-7"
+    >
       {serverError && (
         <div
           role="alert"
@@ -195,7 +207,8 @@ function StudentForm({ student = null, onSuccess, onCancel }) {
           </h3>
 
           <p className="mt-1 text-xs text-slate-500">
-            Enter the student's identification and personal details.
+            Enter the student's identification and personal
+            details.
           </p>
         </div>
 
@@ -347,7 +360,8 @@ function StudentForm({ student = null, onSuccess, onCancel }) {
           </h3>
 
           <p className="mt-1 text-xs text-slate-500">
-            Add the student's contact details and guardian information.
+            Add the student's contact details and guardian
+            information.
           </p>
         </div>
 
