@@ -1,18 +1,25 @@
-const { app, BrowserWindow, ipcMain } = require('electron');
-const path = require('node:path');
-const { createHttpApp } = require('../src/infrastructure/http/app');
-const { getFoundationStatus } = require('../src/application/services/foundation.service');
-const { closeDatabase, initializeDatabase } = require('../src/infrastructure/database/connection');
-const { bootstrapAuthorization } = require('../src/application/services/rbac-bootstrap.service');
-const { registerFoundationIpc } = require('./ipc/foundation.ipc');
-const { registerAuthIpc } = require('./ipc/auth.ipc');
-const { registerRbacIpc } = require('./ipc/rbac.ipc');
-const { registerStudentIpc } = require('./ipc/student.ipc');
-const { runShellSmoke } = require('./smoke-shell');
-
+const { app, BrowserWindow, ipcMain } = require("electron");
+const path = require("node:path");
+const { createHttpApp } = require("../src/infrastructure/http/app");
+const {
+  getFoundationStatus,
+} = require("../src/application/services/foundation.service");
+const {
+  closeDatabase,
+  initializeDatabase,
+} = require("../src/infrastructure/database/connection");
+const {
+  bootstrapAuthorization,
+} = require("../src/application/services/rbac-bootstrap.service");
+const { registerFoundationIpc } = require("./ipc/foundation.ipc");
+const { registerAuthIpc } = require("./ipc/auth.ipc");
+const { registerRbacIpc } = require("./ipc/rbac.ipc");
+const { registerStudentIpc } = require("./ipc/student.ipc");
+const { registerCoursesIpc } = require("./ipc/courses.ipc");
+const { runShellSmoke } = require("./smoke-shell");
 
 const isDevelopment = Boolean(process.env.ELECTRON_RENDERER_URL);
-const isShellSmoke = process.env.SHELL_SMOKE === '1';
+const isShellSmoke = process.env.SHELL_SMOKE === "1";
 
 function createMainWindow() {
   const window = new BrowserWindow({
@@ -22,26 +29,26 @@ function createMainWindow() {
     minHeight: 600,
     show: !isShellSmoke,
     webPreferences: {
-      preload: path.join(__dirname, 'preload.js'),
+      preload: path.join(__dirname, "preload.js"),
       contextIsolation: true,
       nodeIntegration: false,
-      sandbox: true
-    }
+      sandbox: true,
+    },
   });
 
   if (isDevelopment) {
     window.loadURL(process.env.ELECTRON_RENDERER_URL);
   } else {
-    window.loadFile(path.join(__dirname, '../dist/renderer/index.html'));
+    window.loadFile(path.join(__dirname, "../dist/renderer/index.html"));
   }
 
   if (isShellSmoke) {
-    window.webContents.once('did-finish-load', async () => {
+    window.webContents.once("did-finish-load", async () => {
       try {
         await runShellSmoke(window);
         app.exit(0);
       } catch (error) {
-        console.error('[shell-smoke] Smoke run failed.', error);
+        console.error("[shell-smoke] Smoke run failed.", error);
         app.exit(1);
       }
     });
@@ -53,11 +60,14 @@ function createMainWindow() {
 app.whenReady().then(async () => {
   try {
     initializeDatabase({
-      databasePath: path.join(app.getPath('userData'), 'techlearninghub.sqlite')
+      databasePath: path.join(
+        app.getPath("userData"),
+        "techlearninghub.sqlite",
+      ),
     });
     await bootstrapAuthorization();
   } catch (error) {
-    console.error('Failed to initialize the local SQLite database.', error);
+    console.error("Failed to initialize the local SQLite database.", error);
     app.quit();
     return;
   }
@@ -67,15 +77,16 @@ app.whenReady().then(async () => {
   registerAuthIpc({ ipcMain });
   registerRbacIpc({ ipcMain });
   registerStudentIpc({ ipcMain });
+  registerCoursesIpc({ ipcMain });
   createMainWindow();
 
-  app.on('activate', () => {
+  app.on("activate", () => {
     if (BrowserWindow.getAllWindows().length === 0) createMainWindow();
   });
 });
 
-app.on('before-quit', closeDatabase);
+app.on("before-quit", closeDatabase);
 
-app.on('window-all-closed', () => {
-  if (process.platform !== 'darwin') app.quit();
+app.on("window-all-closed", () => {
+  if (process.platform !== "darwin") app.quit();
 });

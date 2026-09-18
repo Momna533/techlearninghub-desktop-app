@@ -1,18 +1,18 @@
-const { PERMISSIONS } = require('./permission-codes');
+const { PERMISSIONS } = require("./permission-codes");
 
 /**
  * System roles. Codes are stable identifiers stored in the database.
  * Permissions listed here are synced into role_permissions on bootstrap.
  */
 const ROLES = Object.freeze({
-  SUPER_ADMIN: 'super_admin',
-  ADMIN: 'admin',
-  TRAINER: 'trainer',
-  PROJECT_MANAGER: 'project_manager',
-  DEVELOPER: 'developer',
-  DESIGNER: 'designer',
-  ACCOUNTANT: 'accountant',
-  HR: 'hr',
+  SUPER_ADMIN: "super_admin",
+  ADMIN: "admin",
+  TRAINER: "trainer",
+  PROJECT_MANAGER: "project_manager",
+  DEVELOPER: "developer",
+  DESIGNER: "designer",
+  ACCOUNTANT: "accountant",
+  HR: "hr",
 });
 
 const ALL_PERMISSION_CODES = Object.freeze(Object.values(PERMISSIONS));
@@ -24,6 +24,10 @@ const ACADEMY_VIEW_PERMISSIONS = Object.freeze([
   PERMISSIONS.ACADEMY_ATTENDANCE_VIEW,
   PERMISSIONS.ACADEMY_FEES_VIEW,
   PERMISSIONS.ACADEMY_CERTIFICATES_VIEW,
+]);
+
+const ACADEMY_MANAGE_PERMISSIONS = Object.freeze([
+  PERMISSIONS.ACADEMY_COURSES_MANAGE,
 ]);
 
 const SOFTWARE_VIEW_PERMISSIONS = Object.freeze([
@@ -46,15 +50,16 @@ const FINANCE_VIEW_PERMISSIONS = Object.freeze([
 const ROLE_DEFINITIONS = Object.freeze([
   {
     code: ROLES.SUPER_ADMIN,
-    name: 'Super Admin',
-    description: 'Full system access, including RBAC administration.',
+    name: "Super Admin",
+    description: "Full system access, including RBAC administration.",
     isSystemRole: true,
     permissions: [...ALL_PERMISSION_CODES],
   },
   {
     code: ROLES.ADMIN,
-    name: 'Admin',
-    description: 'Operational administrator without exclusive super-admin-only expansion later.',
+    name: "Admin",
+    description:
+      "Operational administrator without exclusive super-admin-only expansion later.",
     isSystemRole: true,
     permissions: [
       PERMISSIONS.USERS_VIEW,
@@ -62,6 +67,7 @@ const ROLE_DEFINITIONS = Object.freeze([
       PERMISSIONS.SETTINGS_MANAGE,
       PERMISSIONS.DASHBOARD_VIEW,
       ...ACADEMY_VIEW_PERMISSIONS,
+      ...ACADEMY_MANAGE_PERMISSIONS,
       ...SOFTWARE_VIEW_PERMISSIONS,
       ...FINANCE_VIEW_PERMISSIONS,
       PERMISSIONS.PEOPLE_EMPLOYEES_VIEW,
@@ -74,8 +80,8 @@ const ROLE_DEFINITIONS = Object.freeze([
   },
   {
     code: ROLES.TRAINER,
-    name: 'Trainer',
-    description: 'Training academy instructor.',
+    name: "Trainer",
+    description: "Training academy instructor.",
     isSystemRole: true,
     permissions: [
       PERMISSIONS.DASHBOARD_VIEW,
@@ -87,8 +93,8 @@ const ROLE_DEFINITIONS = Object.freeze([
   },
   {
     code: ROLES.PROJECT_MANAGER,
-    name: 'Project Manager',
-    description: 'Software house project leadership.',
+    name: "Project Manager",
+    description: "Software house project leadership.",
     isSystemRole: true,
     permissions: [
       PERMISSIONS.DASHBOARD_VIEW,
@@ -101,8 +107,8 @@ const ROLE_DEFINITIONS = Object.freeze([
   },
   {
     code: ROLES.DEVELOPER,
-    name: 'Developer',
-    description: 'Software house developer.',
+    name: "Developer",
+    description: "Software house developer.",
     isSystemRole: true,
     permissions: [
       PERMISSIONS.DASHBOARD_VIEW,
@@ -115,8 +121,8 @@ const ROLE_DEFINITIONS = Object.freeze([
   },
   {
     code: ROLES.DESIGNER,
-    name: 'Designer',
-    description: 'Software house designer.',
+    name: "Designer",
+    description: "Software house designer.",
     isSystemRole: true,
     permissions: [
       PERMISSIONS.DASHBOARD_VIEW,
@@ -128,8 +134,8 @@ const ROLE_DEFINITIONS = Object.freeze([
   },
   {
     code: ROLES.ACCOUNTANT,
-    name: 'Accountant',
-    description: 'Finance and billing access.',
+    name: "Accountant",
+    description: "Finance and billing access.",
     isSystemRole: true,
     permissions: [
       PERMISSIONS.DASHBOARD_VIEW,
@@ -143,8 +149,8 @@ const ROLE_DEFINITIONS = Object.freeze([
   },
   {
     code: ROLES.HR,
-    name: 'HR',
-    description: 'Human resources access.',
+    name: "HR",
+    description: "Human resources access.",
     isSystemRole: true,
     permissions: [
       PERMISSIONS.DASHBOARD_VIEW,

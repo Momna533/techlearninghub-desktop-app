@@ -1,45 +1,55 @@
-const { contextBridge, ipcRenderer } = require('electron');
+const { contextBridge, ipcRenderer } = require("electron");
 
-contextBridge.exposeInMainWorld('desktop', {
-  getFoundationStatus: () => ipcRenderer.invoke('foundation:get-status'),
+contextBridge.exposeInMainWorld("desktop", {
+  getFoundationStatus: () => ipcRenderer.invoke("foundation:get-status"),
 
-  testElectronIpc: () => ipcRenderer.invoke('electron:test-ipc'),
+  testElectronIpc: () => ipcRenderer.invoke("electron:test-ipc"),
 
   auth: {
-    login: (credentials) => ipcRenderer.invoke('auth:login', credentials),
+    login: (credentials) => ipcRenderer.invoke("auth:login", credentials),
 
-    getSession: () => ipcRenderer.invoke('auth:get-session'),
+    getSession: () => ipcRenderer.invoke("auth:get-session"),
 
-    logout: () => ipcRenderer.invoke('auth:logout'),
+    logout: () => ipcRenderer.invoke("auth:logout"),
   },
 
   rbac: {
-    listRoles: () => ipcRenderer.invoke('rbac:list-roles'),
+    listRoles: () => ipcRenderer.invoke("rbac:list-roles"),
 
-    assignRole: (payload) => ipcRenderer.invoke('rbac:assign-role', payload),
+    assignRole: (payload) => ipcRenderer.invoke("rbac:assign-role", payload),
 
-    revokeRole: (payload) => ipcRenderer.invoke('rbac:revoke-role', payload),
+    revokeRole: (payload) => ipcRenderer.invoke("rbac:revoke-role", payload),
 
-    demoAdminAction: () => ipcRenderer.invoke('rbac:demo-admin-action'),
+    demoAdminAction: () => ipcRenderer.invoke("rbac:demo-admin-action"),
 
-    demoHrAction: () => ipcRenderer.invoke('rbac:demo-hr-action'),
+    demoHrAction: () => ipcRenderer.invoke("rbac:demo-hr-action"),
 
-    demoFinanceAction: () => ipcRenderer.invoke('rbac:demo-finance-action'),
+    demoFinanceAction: () => ipcRenderer.invoke("rbac:demo-finance-action"),
 
-    checkPermission: (permissionCode) => (
-      ipcRenderer.invoke('rbac:check-permission', permissionCode)
-    ),
+    checkPermission: (permissionCode) =>
+      ipcRenderer.invoke("rbac:check-permission", permissionCode),
   },
 
   students: {
-  list: (filters) => ipcRenderer.invoke('students:list', filters),
+    list: (filters) => ipcRenderer.invoke("students:list", filters),
 
-  get: (id) => ipcRenderer.invoke('students:get', id),
+    get: (id) => ipcRenderer.invoke("students:get", id),
 
-  create: (student) => ipcRenderer.invoke('students:create', student),
+    create: (student) => ipcRenderer.invoke("students:create", student),
 
-  update: (payload) => ipcRenderer.invoke('students:update', payload),
+    update: (payload) => ipcRenderer.invoke("students:update", payload),
 
-  deactivate: (id) => ipcRenderer.invoke('students:deactivate', id),
-},
+    deactivate: (id) => ipcRenderer.invoke("students:deactivate", id),
+  },
+  courses: {
+    list: (filters) => ipcRenderer.invoke("courses:list", filters),
+
+    get: (id) => ipcRenderer.invoke("courses:get", id),
+
+    create: (course) => ipcRenderer.invoke("courses:create", course),
+
+    update: (payload) => ipcRenderer.invoke("courses:update", payload),
+
+    deactivate: (id) => ipcRenderer.invoke("courses:deactivate", id),
+  },
 });

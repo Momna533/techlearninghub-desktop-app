@@ -7,6 +7,7 @@
     "DASHBOARD_VIEW": "dashboard.view",
     "ACADEMY_STUDENTS_VIEW": "academy.students.view",
     "ACADEMY_COURSES_VIEW": "academy.courses.view",
+    "ACADEMY_COURSES_MANAGE": "academy.courses.manage",
     "ACADEMY_BATCHES_VIEW": "academy.batches.view",
     "ACADEMY_ATTENDANCE_VIEW": "academy.attendance.view",
     "ACADEMY_FEES_VIEW": "academy.fees.view",
@@ -65,6 +66,11 @@
       "name": "View courses",
       "description": "Access academy courses."
     },
+    {
+  "code": "academy.courses.manage",
+  "name": "Manage courses",
+  "description": "Create, update, and deactivate academy courses."
+},
     {
       "code": "academy.batches.view",
       "name": "View batches",

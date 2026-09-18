@@ -1,13 +1,13 @@
-import { Route, Routes } from 'react-router-dom';
+import { Route, Routes } from "react-router-dom";
 
-import RequirePermission from '../authorization/RequirePermission';
-import AppShell from '../layout/AppShell';
+import RequirePermission from "../authorization/RequirePermission";
+import AppShell from "../layout/AppShell";
 
-import { getAllNavItems } from '../navigation/nav-config';
+import { getAllNavItems } from "../navigation/nav-config";
 
-import DashboardPage from '../pages/DashboardPage';
-import StudentsPage from '../pages/StudentsPage';
-// import CoursesPage from '../pages/CoursesPage';
+import DashboardPage from "../pages/DashboardPage";
+import StudentsPage from "../pages/StudentsPage";
+import CoursesPage from "../pages/CoursesPage";
 // import BatchesPage from '../pages/BatchesPage';
 // import AttendancePage from '../pages/AttendancePage';
 // import FeesPage from '../pages/FeesPage';
@@ -34,14 +34,14 @@ import StudentsPage from '../pages/StudentsPage';
 // import DocumentsPage from '../pages/DocumentsPage';
 // import SettingsPage from '../pages/SettingsPage';
 
-import NotFoundPage from '../pages/NotFoundPage';
-import UnauthorizedPage from '../pages/UnauthorizedPage';
+import NotFoundPage from "../pages/NotFoundPage";
+import UnauthorizedPage from "../pages/UnauthorizedPage";
 
 const PAGE_COMPONENTS = {
   DashboardPage,
 
   StudentsPage,
-  // CoursesPage,
+  CoursesPage,
   // BatchesPage,
   // AttendancePage,
   // FeesPage,
@@ -75,18 +75,15 @@ function AppRoutes({ user, onLogout }) {
       <Route element={<AppShell user={user} onLogout={onLogout} />}>
         {getAllNavItems().map((item) => {
           const PageComponent = PAGE_COMPONENTS[item.page];
-          const isIndex = item.path === '/';
+          const isIndex = item.path === "/";
 
           return (
             <Route
               key={item.id}
               index={isIndex || undefined}
-              path={isIndex ? undefined : item.path.replace(/^\//, '')}
+              path={isIndex ? undefined : item.path.replace(/^\//, "")}
               element={
-                <RequirePermission
-                  user={user}
-                  permission={item.permission}
-                >
+                <RequirePermission user={user} permission={item.permission}>
                   <PageComponent user={user} />
                 </RequirePermission>
               }
@@ -94,15 +91,9 @@ function AppRoutes({ user, onLogout }) {
           );
         })}
 
-        <Route
-          path="unauthorized"
-          element={<UnauthorizedPage />}
-        />
+        <Route path="unauthorized" element={<UnauthorizedPage />} />
 
-        <Route
-          path="*"
-          element={<NotFoundPage />}
-        />
+        <Route path="*" element={<NotFoundPage />} />
       </Route>
     </Routes>
   );
