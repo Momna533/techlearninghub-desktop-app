@@ -15,7 +15,7 @@ function AppShell({ user, onLogout }) {
       <Sidebar user={user} onLogout={onLogout} mobileOpen={mobileOpen} onMobileClose={handleMobileClose} />
       <div className="app-main">
         <Header user={user} onMobileMenuToggle={handleMobileMenuToggle} />
-        <main className="app-content">
+        <main className="app-content p-4">
           <Outlet context={{ user }} />
         </main>
       </div>

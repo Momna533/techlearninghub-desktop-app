@@ -6,7 +6,7 @@ import AppShell from '../layout/AppShell';
 import { getAllNavItems } from '../navigation/nav-config';
 
 import DashboardPage from '../pages/DashboardPage';
-// import StudentsPage from '../pages/StudentsPage';
+import StudentsPage from '../pages/StudentsPage';
 // import CoursesPage from '../pages/CoursesPage';
 // import BatchesPage from '../pages/BatchesPage';
 // import AttendancePage from '../pages/AttendancePage';
@@ -40,7 +40,7 @@ import UnauthorizedPage from '../pages/UnauthorizedPage';
 const PAGE_COMPONENTS = {
   DashboardPage,
 
-  // StudentsPage,
+  StudentsPage,
   // CoursesPage,
   // BatchesPage,
   // AttendancePage,

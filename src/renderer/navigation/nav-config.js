@@ -1,4 +1,3 @@
-
 import { PERMISSIONS } from '../authorization/permissions';
 
 export const NAV_SECTIONS = Object.freeze([
@@ -60,14 +59,6 @@ export const NAV_SECTIONS = Object.freeze([
         page: 'FeesPage',
         permission: PERMISSIONS.ACADEMY_FEES_VIEW,
         icon: 'Wallet',
-      },
-      {
-        id: 'certificates',
-        label: 'Certificates',
-        path: '/academy/certificates',
-        page: 'CertificatesPage',
-        permission: PERMISSIONS.ACADEMY_CERTIFICATES_VIEW,
-        icon: 'Award',
       },
     ],
   },
@@ -216,14 +207,6 @@ export const NAV_SECTIONS = Object.freeze([
         page: 'ReportsPage',
         permission: PERMISSIONS.REPORTS_VIEW,
         icon: 'ChartColumn',
-      },
-      {
-        id: 'documents',
-        label: 'Documents',
-        path: '/documents',
-        page: 'DocumentsPage',
-        permission: PERMISSIONS.DOCUMENTS_VIEW,
-        icon: 'Files',
       },
       {
         id: 'settings',
