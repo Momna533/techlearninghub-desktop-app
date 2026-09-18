@@ -8,15 +8,21 @@
     "dev": "node scripts/start-dev.mjs",
     "build": "vite build",
     "start": "electron .",
-    "test": "node tests/database/schema.test.js && node tests/authorization/rbac.test.js",
+    "test": "node tests/database/schema.test.js && node tests/authorization/rbac.test.js && node tests/shell/navigation.test.js",
     "test:schema": "node tests/database/schema.test.js",
-    "test:rbac": "node tests/authorization/rbac.test.js"
+    "test:rbac": "node tests/authorization/rbac.test.js",
+    "test:shell": "node tests/shell/navigation.test.js",
+    "smoke:shell": "node scripts/smoke-shell.mjs"
   },
   "dependencies": {
+    "@tailwindcss/vite": "^4.3.3",
     "bcryptjs": "^3.0.3",
     "express": "^5.2.1",
+    "lucide-react": "^1.47.0",
     "react": "^19.3.0",
-    "react-dom": "^19.3.0"
+    "react-dom": "^19.3.0",
+    "react-router-dom": "^7.18.4",
+    "tailwindcss": "^4.3.3"
   },
   "devDependencies": {
     "@vitejs/plugin-react": "^6.1.1",

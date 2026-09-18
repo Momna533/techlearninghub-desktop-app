@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
+import { HashRouter } from 'react-router-dom';
 import LoginScreen from './LoginScreen';
-import ProtectedApp from './ProtectedApp';
+import AppRoutes from './routing/AppRoutes';
 
 function App() {
   const [authState, setAuthState] = useState({
@@ -54,21 +55,6 @@ function App() {
     });
   }
 
-  async function refreshSessionUser() {
-    try {
-      const session = await window.desktop.auth.getSession();
-
-      if (session.authenticated) {
-        setAuthState({
-          status: 'authenticated',
-          user: session.user,
-        });
-      }
-    } catch (error) {
-      console.error('Failed to refresh authentication session:', error);
-    }
-  }
-
   async function handleLogout() {
     try {
       await window.desktop.auth.logout();
@@ -95,11 +81,9 @@ function App() {
   }
 
   return (
-    <ProtectedApp
-      user={authState.user}
-      onLogout={handleLogout}
-      onUserRefresh={refreshSessionUser}
-    />
+    <HashRouter>
+      <AppRoutes user={authState.user} onLogout={handleLogout} />
+    </HashRouter>
   );
 }
 

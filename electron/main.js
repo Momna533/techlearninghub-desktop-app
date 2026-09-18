@@ -7,9 +7,11 @@ const { bootstrapAuthorization } = require('../src/application/services/rbac-boo
 const { registerFoundationIpc } = require('./ipc/foundation.ipc');
 const { registerAuthIpc } = require('./ipc/auth.ipc');
 const { registerRbacIpc } = require('./ipc/rbac.ipc');
+const { runShellSmoke } = require('./smoke-shell');
 
 
 const isDevelopment = Boolean(process.env.ELECTRON_RENDERER_URL);
+const isShellSmoke = process.env.SHELL_SMOKE === '1';
 
 function createMainWindow() {
   const window = new BrowserWindow({
@@ -17,6 +19,7 @@ function createMainWindow() {
     height: 800,
     minWidth: 900,
     minHeight: 600,
+    show: !isShellSmoke,
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
       contextIsolation: true,
@@ -30,6 +33,20 @@ function createMainWindow() {
   } else {
     window.loadFile(path.join(__dirname, '../dist/renderer/index.html'));
   }
+
+  if (isShellSmoke) {
+    window.webContents.once('did-finish-load', async () => {
+      try {
+        await runShellSmoke(window);
+        app.exit(0);
+      } catch (error) {
+        console.error('[shell-smoke] Smoke run failed.', error);
+        app.exit(1);
+      }
+    });
+  }
+
+  return window;
 }
 
 app.whenReady().then(async () => {

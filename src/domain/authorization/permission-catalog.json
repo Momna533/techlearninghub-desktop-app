@@ -1,0 +1,174 @@
+{
+  "permissions": {
+    "RBAC_MANAGE": "rbac.manage",
+    "USERS_VIEW": "users.view",
+    "USERS_MANAGE": "users.manage",
+    "SETTINGS_MANAGE": "settings.manage",
+    "DASHBOARD_VIEW": "dashboard.view",
+    "ACADEMY_STUDENTS_VIEW": "academy.students.view",
+    "ACADEMY_COURSES_VIEW": "academy.courses.view",
+    "ACADEMY_BATCHES_VIEW": "academy.batches.view",
+    "ACADEMY_ATTENDANCE_VIEW": "academy.attendance.view",
+    "ACADEMY_FEES_VIEW": "academy.fees.view",
+    "ACADEMY_CERTIFICATES_VIEW": "academy.certificates.view",
+    "SOFTWARE_LEADS_VIEW": "software.leads.view",
+    "SOFTWARE_CLIENTS_VIEW": "software.clients.view",
+    "SOFTWARE_PROPOSALS_VIEW": "software.proposals.view",
+    "SOFTWARE_PROJECTS_VIEW": "software.projects.view",
+    "SOFTWARE_TASKS_VIEW": "software.tasks.view",
+    "SOFTWARE_TEAMS_VIEW": "software.teams.view",
+    "SOFTWARE_SUPPORT_VIEW": "software.support.view",
+    "FINANCE_INVOICES_VIEW": "finance.invoices.view",
+    "FINANCE_PAYMENTS_VIEW": "finance.payments.view",
+    "FINANCE_EXPENSES_VIEW": "finance.expenses.view",
+    "FINANCE_PAYROLL_VIEW": "finance.payroll.view",
+    "PEOPLE_EMPLOYEES_VIEW": "people.employees.view",
+    "REPORTS_VIEW": "reports.view",
+    "DOCUMENTS_VIEW": "documents.view",
+    "DEMO_ADMIN_ACTION": "demo.admin_action",
+    "DEMO_HR_ACTION": "demo.hr_action",
+    "DEMO_FINANCE_ACTION": "demo.finance_action"
+  },
+  "definitions": [
+    {
+      "code": "rbac.manage",
+      "name": "Manage RBAC",
+      "description": "Assign and revoke roles for users."
+    },
+    {
+      "code": "users.view",
+      "name": "View users",
+      "description": "View user accounts."
+    },
+    {
+      "code": "users.manage",
+      "name": "Manage users",
+      "description": "Create and update user accounts."
+    },
+    {
+      "code": "settings.manage",
+      "name": "Manage settings",
+      "description": "Change system settings."
+    },
+    {
+      "code": "dashboard.view",
+      "name": "View dashboard",
+      "description": "Access the main dashboard."
+    },
+    {
+      "code": "academy.students.view",
+      "name": "View students",
+      "description": "Access academy students."
+    },
+    {
+      "code": "academy.courses.view",
+      "name": "View courses",
+      "description": "Access academy courses."
+    },
+    {
+      "code": "academy.batches.view",
+      "name": "View batches",
+      "description": "Access academy batches."
+    },
+    {
+      "code": "academy.attendance.view",
+      "name": "View attendance",
+      "description": "Access academy attendance."
+    },
+    {
+      "code": "academy.fees.view",
+      "name": "View fees",
+      "description": "Access academy fees."
+    },
+    {
+      "code": "academy.certificates.view",
+      "name": "View certificates",
+      "description": "Access academy certificates."
+    },
+    {
+      "code": "software.leads.view",
+      "name": "View leads",
+      "description": "Access software house leads."
+    },
+    {
+      "code": "software.clients.view",
+      "name": "View clients",
+      "description": "Access software house clients."
+    },
+    {
+      "code": "software.proposals.view",
+      "name": "View proposals",
+      "description": "Access software house proposals."
+    },
+    {
+      "code": "software.projects.view",
+      "name": "View projects",
+      "description": "Access software house projects."
+    },
+    {
+      "code": "software.tasks.view",
+      "name": "View tasks",
+      "description": "Access software house tasks."
+    },
+    {
+      "code": "software.teams.view",
+      "name": "View teams",
+      "description": "Access software house teams."
+    },
+    {
+      "code": "software.support.view",
+      "name": "View support",
+      "description": "Access software house support."
+    },
+    {
+      "code": "finance.invoices.view",
+      "name": "View invoices",
+      "description": "Access finance invoices."
+    },
+    {
+      "code": "finance.payments.view",
+      "name": "View payments",
+      "description": "Access finance payments."
+    },
+    {
+      "code": "finance.expenses.view",
+      "name": "View expenses",
+      "description": "Access finance expenses."
+    },
+    {
+      "code": "finance.payroll.view",
+      "name": "View payroll",
+      "description": "Access finance payroll."
+    },
+    {
+      "code": "people.employees.view",
+      "name": "View employees",
+      "description": "Access employee records."
+    },
+    {
+      "code": "reports.view",
+      "name": "View reports",
+      "description": "Access reports."
+    },
+    {
+      "code": "documents.view",
+      "name": "View documents",
+      "description": "Access documents."
+    },
+    {
+      "code": "demo.admin_action",
+      "name": "Demo admin action",
+      "description": "Protected demo operation reserved for admins."
+    },
+    {
+      "code": "demo.hr_action",
+      "name": "Demo HR action",
+      "description": "Protected demo operation reserved for HR."
+    },
+    {
+      "code": "demo.finance_action",
+      "name": "Demo finance action",
+      "description": "Protected demo operation reserved for finance roles."
+    }
+  ]
+}

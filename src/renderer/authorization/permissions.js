@@ -1,4 +1,4 @@
-import { PERMISSIONS } from "../../domain/authorization/permission-codes";
+import { PERMISSIONS } from './permission-codes';
 
 export { PERMISSIONS };
 
@@ -9,8 +9,8 @@ export function userHasPermission(user, permissionCode) {
     && user.permissions.includes(permissionCode);
 }
 
-export function userHasAnyPermission(user, permissionCodes) {
-  if (!user || !Array.isArray(permissionCodes)) return false;
+export function userHasAnyPermission(user, permissionCodesList) {
+  if (!user || !Array.isArray(permissionCodesList)) return false;
 
-  return permissionCodes.some((code) => userHasPermission(user, code));
+  return permissionCodesList.some((code) => userHasPermission(user, code));
 }
