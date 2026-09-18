@@ -22,6 +22,7 @@ import {
   FileText,
   Receipt,
 } from 'lucide-react';
+import { useEffect } from 'react';
 
 import {
   ResponsiveContainer,
@@ -39,6 +40,7 @@ import {
 } from 'recharts';
 
 function DashboardPage({ user }) {
+
   const today = new Date();
 
   const dateText = today.toLocaleDateString('en-US', {

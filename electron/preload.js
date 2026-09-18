@@ -30,4 +30,16 @@ contextBridge.exposeInMainWorld('desktop', {
       ipcRenderer.invoke('rbac:check-permission', permissionCode)
     ),
   },
+
+  students: {
+  list: (filters) => ipcRenderer.invoke('students:list', filters),
+
+  get: (id) => ipcRenderer.invoke('students:get', id),
+
+  create: (student) => ipcRenderer.invoke('students:create', student),
+
+  update: (payload) => ipcRenderer.invoke('students:update', payload),
+
+  deactivate: (id) => ipcRenderer.invoke('students:deactivate', id),
+},
 });

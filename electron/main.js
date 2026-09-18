@@ -7,6 +7,7 @@ const { bootstrapAuthorization } = require('../src/application/services/rbac-boo
 const { registerFoundationIpc } = require('./ipc/foundation.ipc');
 const { registerAuthIpc } = require('./ipc/auth.ipc');
 const { registerRbacIpc } = require('./ipc/rbac.ipc');
+const { registerStudentIpc } = require('./ipc/student.ipc');
 const { runShellSmoke } = require('./smoke-shell');
 
 
@@ -65,6 +66,7 @@ app.whenReady().then(async () => {
   registerFoundationIpc({ ipcMain, getFoundationStatus });
   registerAuthIpc({ ipcMain });
   registerRbacIpc({ ipcMain });
+  registerStudentIpc({ ipcMain });
   createMainWindow();
 
   app.on('activate', () => {
