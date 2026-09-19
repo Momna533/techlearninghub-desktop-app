@@ -264,15 +264,15 @@ async function registerUser({ firstName, lastName, email, password }) {
     skipAuthorizationCheck: true,
   });
 
-  const superAdminRole = getRoleByCode("super_admin");
+  const adminRole = getRoleByCode("admin");
 
-  if (!superAdminRole) {
+  if (!adminRole) {
     throw new Error(
-      "Super Admin role is not configured. Please initialize the Super Admin role first.",
+      "Admin role is not configured. Please initialize the Admin role first.",
     );
   }
 
-  assignRole(user.id, superAdminRole.id);
+  assignRole(user.id, adminRole.id);
 
   return {
     success: true,
