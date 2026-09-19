@@ -135,7 +135,7 @@ CREATE TABLE batches (
 CREATE TABLE enrollments (
   id INTEGER PRIMARY KEY,
   student_id INTEGER NOT NULL,
-  batch_id INTEGER NOT NULL,
+  batch_id INTEGER,
   enrolled_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
   withdrawn_at TEXT,
   status TEXT NOT NULL DEFAULT 'active' CHECK (status IN ('pending', 'active', 'completed', 'withdrawn', 'cancelled')),

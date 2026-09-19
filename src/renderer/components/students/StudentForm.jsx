@@ -380,7 +380,7 @@ function StudentForm({ student = null, onSuccess, onCancel }) {
         notes: form.notes,
 
         courseId: form.courseId,
-        batchId: form.batchId,
+        batchId: form.batchId || null,
         enrolledAt: form.enrolledAt,
         agreedFeeMinor: Math.round(Number(form.agreedFee) * 100),
         discountMinor:
@@ -772,7 +772,6 @@ function StudentForm({ student = null, onSuccess, onCancel }) {
                   className="mb-1.5 block text-sm font-medium text-slate-700"
                 >
                   Batch
-                  <span className="ml-1 text-rose-500">*</span>
                 </label>
 
                 <select
@@ -788,7 +787,7 @@ function StudentForm({ student = null, onSuccess, onCancel }) {
                       ? "Select a course first"
                       : loadingBatches
                         ? "Loading batches..."
-                        : "Select batch"}
+                        : "No batch selected"}
                   </option>
 
                   {batches.map((batch) => (

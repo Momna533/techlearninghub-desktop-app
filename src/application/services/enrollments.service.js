@@ -29,9 +29,9 @@ function validateEnrollment(enrollment) {
     errors.studentId = "Student is required.";
   }
 
-  if (!enrollment.batchId) {
-    errors.batchId = "Batch is required.";
-  }
+  // if (!enrollment.batchId) {
+  //   errors.batchId = "Batch is required.";
+  // }
 
   if (!enrollment.enrolledAt) {
     errors.enrolledAt = "Admission date is required.";

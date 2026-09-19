@@ -43,10 +43,6 @@ function validateAdmission(admission) {
     }
   }
 
-  if (!admission.batchId) {
-    errors.batchId = "Batch is required.";
-  }
-
   if (!admission.enrolledAt) {
     errors.enrolledAt = "Admission date is required.";
   }
@@ -116,7 +112,12 @@ function normalizeAdmission(admission) {
     },
 
     enrollment: {
-      batchId: Number(admission.batchId),
+      batchId:
+        admission.batchId === null ||
+        admission.batchId === undefined ||
+        admission.batchId === ""
+          ? null
+          : Number(admission.batchId),
       enrolledAt: admission.enrolledAt,
       status: admission.enrollmentStatus || "active",
       agreedFeeMinor: Number(admission.agreedFeeMinor),
@@ -283,7 +284,9 @@ export function createAdmission(admission) {
     throw error;
   }
 
-  const batch = validateBatch(normalized.enrollment.batchId);
+  const batch = normalized.enrollment.batchId
+    ? validateBatch(normalized.enrollment.batchId)
+    : null;
 
   if (normalized.student.status === "inactive") {
     const error = new Error("Cannot admit an inactive student.");
@@ -353,7 +356,7 @@ export function createAdmission(admission) {
     return {
       student,
       enrollment,
-      batchId: batch.id,
+      batchId: batch?.id || null,
     };
   });
 }
