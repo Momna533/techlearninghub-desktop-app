@@ -35,7 +35,12 @@ const INPUT_CLASS =
 const ERROR_INPUT_CLASS =
   "w-full rounded-lg border border-rose-300 bg-white px-3.5 py-2.5 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-rose-500 focus:ring-2 focus:ring-rose-100 disabled:cursor-not-allowed disabled:bg-slate-50";
 
-function StudentForm({ student = null, onSuccess, onCancel }) {
+function StudentForm({
+  student = null,
+  enrollment = null,
+  onSuccess,
+  onCancel,
+}) {
   const [form, setForm] = useState(EMPTY_FORM);
   const [errors, setErrors] = useState({});
   const [submitting, setSubmitting] = useState(false);
@@ -46,7 +51,7 @@ function StudentForm({ student = null, onSuccess, onCancel }) {
   const [loadingCourses, setLoadingCourses] = useState(false);
   const [loadingBatches, setLoadingBatches] = useState(false);
 
-  const isEditing = Boolean(student);
+  const isEditing = Boolean(student?.id);
 
   useEffect(() => {
     if (!student) {
@@ -73,23 +78,30 @@ function StudentForm({ student = null, onSuccess, onCancel }) {
       status: student.status || "active",
       notes: student.notes || "",
 
-      courseId: "",
-      batchId: "",
-      enrolledAt: new Date().toISOString().slice(0, 10),
-      agreedFee: "",
-      discount: "",
-      enrollmentStatus: "active",
-      currencyCode: "PKR",
-      enrollmentNotes: "",
+      courseId: enrollment?.courseId ? String(enrollment.courseId) : "",
+      batchId: enrollment?.batchId ? String(enrollment.batchId) : "",
+      enrolledAt:
+        enrollment?.enrolledAt || new Date().toISOString().slice(0, 10),
+      agreedFee:
+        enrollment?.agreedFeeMinor !== null &&
+        enrollment?.agreedFeeMinor !== undefined
+          ? String(Number(enrollment.agreedFeeMinor) / 100)
+          : "",
+      discount:
+        enrollment?.discountMinor !== null &&
+        enrollment?.discountMinor !== undefined
+          ? String(Number(enrollment.discountMinor) / 100)
+          : "",
+      enrollmentStatus: enrollment?.status || "active",
+      currencyCode: enrollment?.currencyCode || "PKR",
+      enrollmentNotes: enrollment?.notes || "",
     });
 
     setErrors({});
     setServerError("");
-  }, [student]);
+  }, [student, enrollment]);
 
   useEffect(() => {
-    if (isEditing) return;
-
     let cancelled = false;
 
     async function loadCourses() {
@@ -125,10 +137,10 @@ function StudentForm({ student = null, onSuccess, onCancel }) {
     return () => {
       cancelled = true;
     };
-  }, [isEditing]);
+  }, []);
 
   useEffect(() => {
-    if (isEditing || !form.courseId) {
+    if (!form.courseId) {
       setBatches([]);
       return;
     }
@@ -178,7 +190,7 @@ function StudentForm({ student = null, onSuccess, onCancel }) {
     return () => {
       cancelled = true;
     };
-  }, [form.courseId, isEditing]);
+  }, [form.courseId]);
 
   function handleChange(event) {
     const { name, value } = event.target;
@@ -349,6 +361,19 @@ function StudentForm({ student = null, onSuccess, onCancel }) {
           dateOfBirth: form.dateOfBirth,
           status: form.status,
           notes: form.notes,
+
+          courseId: form.courseId,
+          batchId: form.batchId || null,
+          enrolledAt: form.enrolledAt,
+          agreedFeeMinor:
+            form.agreedFee === ""
+              ? 0
+              : Math.round(Number(form.agreedFee) * 100),
+          discountMinor:
+            form.discount === "" ? 0 : Math.round(Number(form.discount) * 100),
+          enrollmentStatus: form.enrollmentStatus,
+          currencyCode: form.currencyCode,
+          enrollmentNotes: form.enrollmentNotes,
         });
 
         if (!result.success) {
@@ -719,266 +744,260 @@ function StudentForm({ student = null, onSuccess, onCancel }) {
         </div>
       </section>
 
-      {!isEditing && (
-        <>
-          <div className="border-t border-slate-200" />
+      <>
+        <div className="border-t border-slate-200" />
 
-          <section>
-            <div className="mb-4">
-              <h3 className="text-sm font-semibold text-slate-900">
-                Admission
-              </h3>
+        <section>
+          <div className="mb-4">
+            <h3 className="text-sm font-semibold text-slate-900">Admission</h3>
 
-              <p className="mt-1 text-xs text-slate-500">
-                Select the course and batch and set the student's admission fee.
-              </p>
+            <p className="mt-1 text-xs text-slate-500">
+              Select the course and batch and set the student's admission fee.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
+            <div>
+              <label
+                htmlFor="courseId"
+                className="mb-1.5 block text-sm font-medium text-slate-700"
+              >
+                Course
+                <span className="ml-1 text-rose-500">*</span>
+              </label>
+
+              <select
+                id="courseId"
+                name="courseId"
+                value={form.courseId}
+                onChange={handleCourseChange}
+                disabled={submitting || loadingCourses}
+                className={errors.courseId ? ERROR_INPUT_CLASS : INPUT_CLASS}
+              >
+                <option value="">
+                  {loadingCourses ? "Loading courses..." : "Select course"}
+                </option>
+
+                {courses.map((course) => (
+                  <option key={course.id} value={course.id}>
+                    {course.courseCode} — {course.name}
+                  </option>
+                ))}
+              </select>
+
+              {renderFieldError("courseId")}
             </div>
 
-            <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
-              <div>
-                <label
-                  htmlFor="courseId"
-                  className="mb-1.5 block text-sm font-medium text-slate-700"
-                >
-                  Course
-                  <span className="ml-1 text-rose-500">*</span>
-                </label>
+            <div>
+              <label
+                htmlFor="batchId"
+                className="mb-1.5 block text-sm font-medium text-slate-700"
+              >
+                Batch
+              </label>
 
-                <select
-                  id="courseId"
-                  name="courseId"
-                  value={form.courseId}
-                  onChange={handleCourseChange}
-                  disabled={submitting || loadingCourses}
-                  className={errors.courseId ? ERROR_INPUT_CLASS : INPUT_CLASS}
-                >
-                  <option value="">
-                    {loadingCourses ? "Loading courses..." : "Select course"}
+              <select
+                id="batchId"
+                name="batchId"
+                value={form.batchId}
+                onChange={handleBatchChange}
+                disabled={submitting || !form.courseId || loadingBatches}
+                className={errors.batchId ? ERROR_INPUT_CLASS : INPUT_CLASS}
+              >
+                <option value="">
+                  {!form.courseId
+                    ? "Select a course first"
+                    : loadingBatches
+                      ? "Loading batches..."
+                      : "No batch selected"}
+                </option>
+
+                {batches.map((batch) => (
+                  <option key={batch.id} value={batch.id}>
+                    {batch.batchCode} — {batch.name}
                   </option>
+                ))}
+              </select>
 
-                  {courses.map((course) => (
-                    <option key={course.id} value={course.id}>
-                      {course.courseCode} — {course.name}
-                    </option>
-                  ))}
-                </select>
+              {renderFieldError("batchId")}
+            </div>
 
-                {renderFieldError("courseId")}
-              </div>
+            <div>
+              <label
+                htmlFor="enrolledAt"
+                className="mb-1.5 block text-sm font-medium text-slate-700"
+              >
+                Admission Date
+                <span className="ml-1 text-rose-500">*</span>
+              </label>
 
-              <div>
-                <label
-                  htmlFor="batchId"
-                  className="mb-1.5 block text-sm font-medium text-slate-700"
-                >
-                  Batch
-                </label>
+              <input
+                id="enrolledAt"
+                name="enrolledAt"
+                type="date"
+                value={form.enrolledAt}
+                onChange={handleChange}
+                disabled={submitting}
+                className={errors.enrolledAt ? ERROR_INPUT_CLASS : INPUT_CLASS}
+              />
 
-                <select
-                  id="batchId"
-                  name="batchId"
-                  value={form.batchId}
-                  onChange={handleBatchChange}
-                  disabled={submitting || !form.courseId || loadingBatches}
-                  className={errors.batchId ? ERROR_INPUT_CLASS : INPUT_CLASS}
-                >
-                  <option value="">
-                    {!form.courseId
-                      ? "Select a course first"
-                      : loadingBatches
-                        ? "Loading batches..."
-                        : "No batch selected"}
-                  </option>
+              {renderFieldError("enrolledAt")}
+            </div>
 
-                  {batches.map((batch) => (
-                    <option key={batch.id} value={batch.id}>
-                      {batch.batchCode} — {batch.name}
-                    </option>
-                  ))}
-                </select>
+            <div>
+              <label
+                htmlFor="enrollmentStatus"
+                className="mb-1.5 block text-sm font-medium text-slate-700"
+              >
+                Enrollment Status
+              </label>
 
-                {renderFieldError("batchId")}
-              </div>
+              <select
+                id="enrollmentStatus"
+                name="enrollmentStatus"
+                value={form.enrollmentStatus}
+                onChange={handleChange}
+                disabled={submitting}
+                className={INPUT_CLASS}
+              >
+                <option value="active">Active</option>
+                <option value="pending">Pending</option>
+              </select>
+            </div>
 
-              <div>
-                <label
-                  htmlFor="enrolledAt"
-                  className="mb-1.5 block text-sm font-medium text-slate-700"
-                >
-                  Admission Date
-                  <span className="ml-1 text-rose-500">*</span>
-                </label>
+            <div>
+              <label
+                htmlFor="agreedFee"
+                className="mb-1.5 block text-sm font-medium text-slate-700"
+              >
+                Agreed Fee
+                <span className="ml-1 text-rose-500">*</span>
+              </label>
 
-                <input
-                  id="enrolledAt"
-                  name="enrolledAt"
-                  type="date"
-                  value={form.enrolledAt}
-                  onChange={handleChange}
-                  disabled={submitting}
-                  className={
-                    errors.enrolledAt ? ERROR_INPUT_CLASS : INPUT_CLASS
-                  }
-                />
+              <input
+                id="agreedFee"
+                name="agreedFee"
+                type="number"
+                min="0"
+                step="0.01"
+                value={form.agreedFee}
+                onChange={handleChange}
+                disabled={submitting}
+                placeholder="e.g. 25000"
+                className={errors.agreedFee ? ERROR_INPUT_CLASS : INPUT_CLASS}
+              />
 
-                {renderFieldError("enrolledAt")}
-              </div>
+              {selectedBatch?.feeMinor !== null &&
+                selectedBatch?.feeMinor !== undefined && (
+                  <p className="mt-1.5 text-xs text-slate-500">
+                    Batch fee: {form.currencyCode}{" "}
+                    {(Number(selectedBatch.feeMinor) / 100).toLocaleString()}
+                  </p>
+                )}
 
-              <div>
-                <label
-                  htmlFor="enrollmentStatus"
-                  className="mb-1.5 block text-sm font-medium text-slate-700"
-                >
-                  Enrollment Status
-                </label>
+              {renderFieldError("agreedFee")}
+            </div>
 
-                <select
-                  id="enrollmentStatus"
-                  name="enrollmentStatus"
-                  value={form.enrollmentStatus}
-                  onChange={handleChange}
-                  disabled={submitting}
-                  className={INPUT_CLASS}
-                >
-                  <option value="active">Active</option>
-                  <option value="pending">Pending</option>
-                </select>
-              </div>
+            <div>
+              <label
+                htmlFor="discount"
+                className="mb-1.5 block text-sm font-medium text-slate-700"
+              >
+                Discount
+              </label>
 
-              <div>
-                <label
-                  htmlFor="agreedFee"
-                  className="mb-1.5 block text-sm font-medium text-slate-700"
-                >
-                  Agreed Fee
-                  <span className="ml-1 text-rose-500">*</span>
-                </label>
+              <input
+                id="discount"
+                name="discount"
+                type="number"
+                min="0"
+                step="0.01"
+                value={form.discount}
+                onChange={handleChange}
+                disabled={submitting}
+                placeholder="e.g. 2000"
+                className={errors.discount ? ERROR_INPUT_CLASS : INPUT_CLASS}
+              />
 
-                <input
-                  id="agreedFee"
-                  name="agreedFee"
-                  type="number"
-                  min="0"
-                  step="0.01"
-                  value={form.agreedFee}
-                  onChange={handleChange}
-                  disabled={submitting}
-                  placeholder="e.g. 25000"
-                  className={errors.agreedFee ? ERROR_INPUT_CLASS : INPUT_CLASS}
-                />
+              {renderFieldError("discount")}
+            </div>
 
-                {selectedBatch?.feeMinor !== null &&
-                  selectedBatch?.feeMinor !== undefined && (
-                    <p className="mt-1.5 text-xs text-slate-500">
-                      Batch fee: {form.currencyCode}{" "}
-                      {(Number(selectedBatch.feeMinor) / 100).toLocaleString()}
+            <div>
+              <label
+                htmlFor="currencyCode"
+                className="mb-1.5 block text-sm font-medium text-slate-700"
+              >
+                Currency
+              </label>
+
+              <input
+                id="currencyCode"
+                name="currencyCode"
+                value={form.currencyCode}
+                onChange={handleChange}
+                disabled={submitting}
+                maxLength={3}
+                className={INPUT_CLASS}
+              />
+
+              {renderFieldError("currencyCode")}
+            </div>
+
+            <div className="sm:col-span-2">
+              <label
+                htmlFor="enrollmentNotes"
+                className="mb-1.5 block text-sm font-medium text-slate-700"
+              >
+                Admission Notes
+              </label>
+
+              <textarea
+                id="enrollmentNotes"
+                name="enrollmentNotes"
+                value={form.enrollmentNotes}
+                onChange={handleChange}
+                disabled={submitting}
+                placeholder="Add admission-specific notes..."
+                rows={3}
+                className={`resize-y ${
+                  errors.enrollmentNotes ? ERROR_INPUT_CLASS : INPUT_CLASS
+                }`}
+              />
+
+              {renderFieldError("enrollmentNotes")}
+            </div>
+
+            {selectedBatch && (
+              <div className="sm:col-span-2 rounded-lg border border-slate-200 bg-slate-50 px-4 py-3">
+                <div className="grid grid-cols-1 gap-3 text-sm sm:grid-cols-3">
+                  <div>
+                    <p className="text-xs text-slate-500">Batch</p>
+                    <p className="mt-0.5 font-medium text-slate-900">
+                      {selectedBatch.name}
                     </p>
-                  )}
+                  </div>
 
-                {renderFieldError("agreedFee")}
-              </div>
+                  <div>
+                    <p className="text-xs text-slate-500">Schedule</p>
+                    <p className="mt-0.5 font-medium text-slate-900">
+                      {selectedBatch.days?.join(", ") || "Not set"}
+                    </p>
+                  </div>
 
-              <div>
-                <label
-                  htmlFor="discount"
-                  className="mb-1.5 block text-sm font-medium text-slate-700"
-                >
-                  Discount
-                </label>
-
-                <input
-                  id="discount"
-                  name="discount"
-                  type="number"
-                  min="0"
-                  step="0.01"
-                  value={form.discount}
-                  onChange={handleChange}
-                  disabled={submitting}
-                  placeholder="e.g. 2000"
-                  className={errors.discount ? ERROR_INPUT_CLASS : INPUT_CLASS}
-                />
-
-                {renderFieldError("discount")}
-              </div>
-
-              <div>
-                <label
-                  htmlFor="currencyCode"
-                  className="mb-1.5 block text-sm font-medium text-slate-700"
-                >
-                  Currency
-                </label>
-
-                <input
-                  id="currencyCode"
-                  name="currencyCode"
-                  value={form.currencyCode}
-                  onChange={handleChange}
-                  disabled={submitting}
-                  maxLength={3}
-                  className={INPUT_CLASS}
-                />
-
-                {renderFieldError("currencyCode")}
-              </div>
-
-              <div className="sm:col-span-2">
-                <label
-                  htmlFor="enrollmentNotes"
-                  className="mb-1.5 block text-sm font-medium text-slate-700"
-                >
-                  Admission Notes
-                </label>
-
-                <textarea
-                  id="enrollmentNotes"
-                  name="enrollmentNotes"
-                  value={form.enrollmentNotes}
-                  onChange={handleChange}
-                  disabled={submitting}
-                  placeholder="Add admission-specific notes..."
-                  rows={3}
-                  className={`resize-y ${
-                    errors.enrollmentNotes ? ERROR_INPUT_CLASS : INPUT_CLASS
-                  }`}
-                />
-
-                {renderFieldError("enrollmentNotes")}
-              </div>
-
-              {selectedBatch && (
-                <div className="sm:col-span-2 rounded-lg border border-slate-200 bg-slate-50 px-4 py-3">
-                  <div className="grid grid-cols-1 gap-3 text-sm sm:grid-cols-3">
-                    <div>
-                      <p className="text-xs text-slate-500">Batch</p>
-                      <p className="mt-0.5 font-medium text-slate-900">
-                        {selectedBatch.name}
-                      </p>
-                    </div>
-
-                    <div>
-                      <p className="text-xs text-slate-500">Schedule</p>
-                      <p className="mt-0.5 font-medium text-slate-900">
-                        {selectedBatch.days?.join(", ") || "Not set"}
-                      </p>
-                    </div>
-
-                    <div>
-                      <p className="text-xs text-slate-500">Seats</p>
-                      <p className="mt-0.5 font-medium text-slate-900">
-                        {selectedBatch.capacity
-                          ? `${selectedBatch.enrolledCount} / ${selectedBatch.capacity}`
-                          : `${selectedBatch.enrolledCount} enrolled`}
-                      </p>
-                    </div>
+                  <div>
+                    <p className="text-xs text-slate-500">Seats</p>
+                    <p className="mt-0.5 font-medium text-slate-900">
+                      {selectedBatch.capacity
+                        ? `${selectedBatch.enrolledCount} / ${selectedBatch.capacity}`
+                        : `${selectedBatch.enrolledCount} enrolled`}
+                    </p>
                   </div>
                 </div>
-              )}
-            </div>
-          </section>
-        </>
-      )}
+              </div>
+            )}
+          </div>
+        </section>
+      </>
 
       <div className="border-t border-slate-200" />
 

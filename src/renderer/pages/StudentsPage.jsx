@@ -1,21 +1,20 @@
-
-import { useEffect, useState } from 'react';
+import { useEffect, useState } from "react";
 
 import {
   listStudents,
   getStudent,
   deactivateStudent,
-} from '../services/student.api';
+} from "../services/student.api";
 
-import StudentForm from '../components/students/StudentForm';
+import StudentForm from "../components/students/StudentForm";
 
 function StudentsPage() {
   const [students, setStudents] = useState([]);
-  const [search, setSearch] = useState('');
-  const [status, setStatus] = useState('all');
+  const [search, setSearch] = useState("");
+  const [status, setStatus] = useState("all");
 
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
 
   const [showForm, setShowForm] = useState(false);
   const [editingStudent, setEditingStudent] = useState(null);
@@ -25,7 +24,7 @@ function StudentsPage() {
 
   async function loadStudents() {
     setLoading(true);
-    setError('');
+    setError("");
 
     const result = await listStudents({
       search,
@@ -33,9 +32,7 @@ function StudentsPage() {
     });
 
     if (!result.success) {
-      setError(
-        result.message || 'Failed to load students.'
-      );
+      setError(result.message || "Failed to load students.");
       setStudents([]);
       setLoading(false);
       return;
@@ -53,28 +50,39 @@ function StudentsPage() {
     setEditingStudent(null);
     setSelectedStudent(null);
     setShowForm(true);
-    setError('');
+    setError("");
   }
 
-  function handleEdit(student) {
-    setEditingStudent(student);
-    setSelectedStudent(null);
-    setShowForm(true);
-    setError('');
+  async function handleEdit(student) {
+    setError("");
+
+    try {
+      const result = await getStudent(student.id);
+
+      if (!result.success) {
+        setError(result.message || "Unable to load student.");
+        return;
+      }
+
+      setEditingStudent(result);
+      setSelectedStudent(null);
+      setShowForm(true);
+    } catch (error) {
+      console.error("[StudentsPage] Failed to load student:", error);
+      setError("Unable to load student.");
+    }
   }
 
   async function handleView(studentId) {
     setLoadingStudent(true);
-    setError('');
+    setError("");
 
     const result = await getStudent(studentId);
 
     setLoadingStudent(false);
 
     if (!result.success) {
-      setError(
-        result.message || 'Failed to load student.'
-      );
+      setError(result.message || "Failed to load student.");
       return;
     }
 
@@ -84,19 +92,17 @@ function StudentsPage() {
 
   async function handleDeactivate(id) {
     const confirmed = window.confirm(
-      'Are you sure you want to deactivate this student?'
+      "Are you sure you want to deactivate this student?",
     );
 
     if (!confirmed) return;
 
-    setError('');
+    setError("");
 
     const result = await deactivateStudent(id);
 
     if (!result.success) {
-      setError(
-        result.message || 'Failed to deactivate student.'
-      );
+      setError(result.message || "Failed to deactivate student.");
       return;
     }
 
@@ -110,7 +116,7 @@ function StudentsPage() {
   async function handleFormSuccess() {
     setShowForm(false);
     setEditingStudent(null);
-    setError('');
+    setError("");
 
     await loadStudents();
   }
@@ -126,32 +132,29 @@ function StudentsPage() {
 
   function getStatusClasses(studentStatus) {
     switch (studentStatus) {
-      case 'active':
-        return 'bg-emerald-50 text-emerald-700 ring-1 ring-inset ring-emerald-600/20';
+      case "active":
+        return "bg-emerald-50 text-emerald-700 ring-1 ring-inset ring-emerald-600/20";
 
-      case 'inactive':
-        return 'bg-slate-100 text-slate-600 ring-1 ring-inset ring-slate-500/20';
+      case "inactive":
+        return "bg-slate-100 text-slate-600 ring-1 ring-inset ring-slate-500/20";
 
-      case 'graduated':
-        return 'bg-blue-50 text-blue-700 ring-1 ring-inset ring-blue-600/20';
+      case "graduated":
+        return "bg-blue-50 text-blue-700 ring-1 ring-inset ring-blue-600/20";
 
-      case 'withdrawn':
-        return 'bg-rose-50 text-rose-700 ring-1 ring-inset ring-rose-600/20';
+      case "withdrawn":
+        return "bg-rose-50 text-rose-700 ring-1 ring-inset ring-rose-600/20";
 
       default:
-        return 'bg-slate-100 text-slate-600 ring-1 ring-inset ring-slate-500/20';
+        return "bg-slate-100 text-slate-600 ring-1 ring-inset ring-slate-500/20";
     }
   }
 
   function formatStatus(studentStatus) {
-    return (
-      studentStatus.charAt(0).toUpperCase()
-      + studentStatus.slice(1)
-    );
+    return studentStatus.charAt(0).toUpperCase() + studentStatus.slice(1);
   }
 
   function formatDate(date) {
-    if (!date) return '-';
+    if (!date) return "-";
 
     const parsedDate = new Date(date);
 
@@ -165,12 +168,9 @@ function StudentsPage() {
   return (
     <div className="min-h-full bg-slate-50 px-4 py-5 sm:px-6 lg:px-8">
       <div className="mx-auto w-full max-w-7xl space-y-5">
-
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <p className="text-sm font-medium text-slate-500">
-              Academy
-            </p>
+            <p className="text-sm font-medium text-slate-500">Academy</p>
 
             <h1 className="mt-1 text-2xl font-semibold tracking-tight text-slate-900 sm:text-3xl">
               Students
@@ -186,19 +186,14 @@ function StudentsPage() {
             onClick={handleCreate}
             className="inline-flex w-full items-center justify-center rounded-lg bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-slate-900 focus:ring-offset-2 sm:w-auto"
           >
-            <span className="mr-2 text-lg leading-none">
-              +
-            </span>
-
+            <span className="mr-2 text-lg leading-none">+</span>
             Add Student
           </button>
         </div>
 
         {error && (
           <div className="flex items-start gap-3 rounded-lg border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
-            <span className="mt-0.5 font-semibold">
-              !
-            </span>
+            <span className="mt-0.5 font-semibold">!</span>
 
             <p>{error}</p>
           </div>
@@ -219,9 +214,7 @@ function StudentsPage() {
                 type="search"
                 placeholder="Search by ID, name, phone, email or guardian..."
                 value={search}
-                onChange={(event) =>
-                  setSearch(event.target.value)
-                }
+                onChange={(event) => setSearch(event.target.value)}
                 className="w-full rounded-lg border border-slate-300 bg-white px-3.5 py-2.5 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-slate-500 focus:ring-2 focus:ring-slate-200"
               />
             </div>
@@ -237,30 +230,18 @@ function StudentsPage() {
               <select
                 id="student-status"
                 value={status}
-                onChange={(event) =>
-                  setStatus(event.target.value)
-                }
+                onChange={(event) => setStatus(event.target.value)}
                 className="w-full rounded-lg border border-slate-300 bg-white px-3.5 py-2.5 text-sm text-slate-900 outline-none transition focus:border-slate-500 focus:ring-2 focus:ring-slate-200"
               >
-                <option value="all">
-                  All statuses
-                </option>
+                <option value="all">All statuses</option>
 
-                <option value="active">
-                  Active
-                </option>
+                <option value="active">Active</option>
 
-                <option value="inactive">
-                  Inactive
-                </option>
+                <option value="inactive">Inactive</option>
 
-                <option value="graduated">
-                  Graduated
-                </option>
+                <option value="graduated">Graduated</option>
 
-                <option value="withdrawn">
-                  Withdrawn
-                </option>
+                <option value="withdrawn">Withdrawn</option>
               </select>
             </div>
           </div>
@@ -280,10 +261,8 @@ function StudentsPage() {
               </h2>
 
               <p className="mt-0.5 text-sm text-slate-500">
-                {students.length}{' '}
-                {students.length === 1
-                  ? 'student'
-                  : 'students'}
+                {students.length}{" "}
+                {students.length === 1 ? "student" : "students"}
               </p>
             </div>
           </div>
@@ -292,9 +271,7 @@ function StudentsPage() {
             <div className="px-5 py-12 text-center">
               <div className="mx-auto h-6 w-6 animate-spin rounded-full border-2 border-slate-200 border-t-slate-700" />
 
-              <p className="mt-3 text-sm text-slate-500">
-                Loading students...
-              </p>
+              <p className="mt-3 text-sm text-slate-500">Loading students...</p>
             </div>
           ) : students.length === 0 ? (
             <div className="px-5 py-14 text-center">
@@ -307,12 +284,12 @@ function StudentsPage() {
               </h3>
 
               <p className="mx-auto mt-1 max-w-sm text-sm text-slate-500">
-                {search || status !== 'all'
-                  ? 'Try changing your search or filter.'
-                  : 'Add your first student to get started.'}
+                {search || status !== "all"
+                  ? "Try changing your search or filter."
+                  : "Add your first student to get started."}
               </p>
 
-              {!search && status === 'all' && (
+              {!search && status === "all" && (
                 <button
                   type="button"
                   onClick={handleCreate}
@@ -369,8 +346,7 @@ function StudentsPage() {
 
                             <div className="min-w-0">
                               <p className="truncate text-sm font-medium text-slate-900">
-                                {student.first_name}{' '}
-                                {student.last_name}
+                                {student.first_name} {student.last_name}
                               </p>
 
                               <p className="mt-0.5 text-xs text-slate-500">
@@ -404,9 +380,7 @@ function StudentsPage() {
                           <div className="flex justify-end gap-1">
                             <button
                               type="button"
-                              onClick={() =>
-                                handleView(student.id)
-                              }
+                              onClick={() => handleView(student.id)}
                               className="rounded-md px-2.5 py-1.5 text-xs font-medium text-slate-600 transition hover:bg-slate-100 hover:text-slate-900"
                             >
                               View
@@ -414,9 +388,7 @@ function StudentsPage() {
 
                             <button
                               type="button"
-                              onClick={() =>
-                                handleEdit(student)
-                              }
+                              onClick={() => handleEdit(student)}
                               className="rounded-md px-2.5 py-1.5 text-xs font-medium text-slate-600 transition hover:bg-slate-100 hover:text-slate-900"
                             >
                               Edit
@@ -424,12 +396,8 @@ function StudentsPage() {
 
                             <button
                               type="button"
-                              onClick={() =>
-                                handleDeactivate(student.id)
-                              }
-                              disabled={
-                                student.status === 'inactive'
-                              }
+                              onClick={() => handleDeactivate(student.id)}
+                              disabled={student.status === "inactive"}
                               className="rounded-md px-2.5 py-1.5 text-xs font-medium text-rose-600 transition hover:bg-rose-50 disabled:cursor-not-allowed disabled:opacity-40"
                             >
                               Deactivate
@@ -444,10 +412,7 @@ function StudentsPage() {
 
               <div className="divide-y divide-slate-200 md:hidden">
                 {students.map((student) => (
-                  <div
-                    key={student.id}
-                    className="p-4"
-                  >
+                  <div key={student.id} className="p-4">
                     <div className="flex items-start justify-between gap-3">
                       <div className="flex min-w-0 items-center gap-3">
                         <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-slate-100 text-xs font-semibold text-slate-600">
@@ -457,8 +422,7 @@ function StudentsPage() {
 
                         <div className="min-w-0">
                           <p className="truncate text-sm font-semibold text-slate-900">
-                            {student.first_name}{' '}
-                            {student.last_name}
+                            {student.first_name} {student.last_name}
                           </p>
 
                           <p className="mt-0.5 text-xs text-slate-500">
@@ -476,9 +440,7 @@ function StudentsPage() {
 
                     <div className="mt-4 grid grid-cols-2 gap-3">
                       <div>
-                        <p className="text-xs text-slate-400">
-                          Guardian
-                        </p>
+                        <p className="text-xs text-slate-400">Guardian</p>
 
                         <p className="mt-0.5 truncate text-sm text-slate-700">
                           {student.guardian_name}
@@ -486,9 +448,7 @@ function StudentsPage() {
                       </div>
 
                       <div>
-                        <p className="text-xs text-slate-400">
-                          Phone
-                        </p>
+                        <p className="text-xs text-slate-400">Phone</p>
 
                         <p className="mt-0.5 truncate text-sm text-slate-700">
                           {student.phone}
@@ -496,9 +456,7 @@ function StudentsPage() {
                       </div>
 
                       <div>
-                        <p className="text-xs text-slate-400">
-                          Registered
-                        </p>
+                        <p className="text-xs text-slate-400">Registered</p>
 
                         <p className="mt-0.5 text-sm text-slate-700">
                           {formatDate(student.joined_at)}
@@ -506,12 +464,10 @@ function StudentsPage() {
                       </div>
 
                       <div>
-                        <p className="text-xs text-slate-400">
-                          Email
-                        </p>
+                        <p className="text-xs text-slate-400">Email</p>
 
                         <p className="mt-0.5 truncate text-sm text-slate-700">
-                          {student.email || '-'}
+                          {student.email || "-"}
                         </p>
                       </div>
                     </div>
@@ -519,9 +475,7 @@ function StudentsPage() {
                     <div className="mt-4 flex flex-wrap gap-2 border-t border-slate-100 pt-3">
                       <button
                         type="button"
-                        onClick={() =>
-                          handleView(student.id)
-                        }
+                        onClick={() => handleView(student.id)}
                         className="rounded-lg border border-slate-200 px-3 py-2 text-xs font-medium text-slate-700 transition hover:bg-slate-50"
                       >
                         View
@@ -529,9 +483,7 @@ function StudentsPage() {
 
                       <button
                         type="button"
-                        onClick={() =>
-                          handleEdit(student)
-                        }
+                        onClick={() => handleEdit(student)}
                         className="rounded-lg border border-slate-200 px-3 py-2 text-xs font-medium text-slate-700 transition hover:bg-slate-50"
                       >
                         Edit
@@ -539,12 +491,8 @@ function StudentsPage() {
 
                       <button
                         type="button"
-                        onClick={() =>
-                          handleDeactivate(student.id)
-                        }
-                        disabled={
-                          student.status === 'inactive'
-                        }
+                        onClick={() => handleDeactivate(student.id)}
+                        disabled={student.status === "inactive"}
                         className="rounded-lg border border-rose-200 px-3 py-2 text-xs font-medium text-rose-600 transition hover:bg-rose-50 disabled:cursor-not-allowed disabled:opacity-40"
                       >
                         Deactivate
@@ -579,15 +527,13 @@ function StudentsPage() {
                   id="student-form-title"
                   className="text-lg font-semibold text-slate-900"
                 >
-                  {editingStudent
-                    ? 'Edit Student'
-                    : 'Add Student'}
+                  {editingStudent ? "Edit Student" : "Add Student"}
                 </h2>
 
                 <p className="mt-0.5 text-sm text-slate-500">
                   {editingStudent
-                    ? 'Update the student information below.'
-                    : 'Enter the student information below.'}
+                    ? "Update the student information below."
+                    : "Enter the student information below."}
                 </p>
               </div>
 
@@ -603,7 +549,8 @@ function StudentsPage() {
 
             <div className="overflow-y-auto px-5 py-5 sm:px-6 sm:py-6">
               <StudentForm
-                student={editingStudent}
+                student={editingStudent?.student || null}
+                enrollment={editingStudent?.student?.enrollment || null}
                 onSuccess={handleFormSuccess}
                 onCancel={handleCloseForm}
               />
@@ -640,8 +587,7 @@ function StudentsPage() {
                       id="student-view-title"
                       className="text-lg font-semibold text-slate-900"
                     >
-                      {selectedStudent.first_name}{' '}
-                      {selectedStudent.last_name}
+                      {selectedStudent.first_name} {selectedStudent.last_name}
                     </h2>
 
                     <span
@@ -674,7 +620,7 @@ function StudentsPage() {
                 </p>
 
                 <p className="mt-1 text-sm text-slate-900">
-                  {selectedStudent.guardian_name || '-'}
+                  {selectedStudent.guardian_name || "-"}
                 </p>
               </div>
 
@@ -684,7 +630,7 @@ function StudentsPage() {
                 </p>
 
                 <p className="mt-1 text-sm text-slate-900">
-                  {selectedStudent.phone || '-'}
+                  {selectedStudent.phone || "-"}
                 </p>
               </div>
 
@@ -694,7 +640,7 @@ function StudentsPage() {
                 </p>
 
                 <p className="mt-1 text-sm text-slate-900">
-                  {selectedStudent.guardian_phone || '-'}
+                  {selectedStudent.guardian_phone || "-"}
                 </p>
               </div>
 
@@ -704,7 +650,7 @@ function StudentsPage() {
                 </p>
 
                 <p className="mt-1 break-words text-sm text-slate-900">
-                  {selectedStudent.email || '-'}
+                  {selectedStudent.email || "-"}
                 </p>
               </div>
 
@@ -714,9 +660,7 @@ function StudentsPage() {
                 </p>
 
                 <p className="mt-1 text-sm text-slate-900">
-                  {formatDate(
-                    selectedStudent.date_of_birth
-                  )}
+                  {formatDate(selectedStudent.date_of_birth)}
                 </p>
               </div>
 
@@ -726,9 +670,7 @@ function StudentsPage() {
                 </p>
 
                 <p className="mt-1 text-sm text-slate-900">
-                  {formatDate(
-                    selectedStudent.joined_at
-                  )}
+                  {formatDate(selectedStudent.joined_at)}
                 </p>
               </div>
 
@@ -738,7 +680,7 @@ function StudentsPage() {
                 </p>
 
                 <p className="mt-1 text-sm text-slate-900">
-                  {selectedStudent.address || '-'}
+                  {selectedStudent.address || "-"}
                 </p>
               </div>
 
@@ -748,7 +690,7 @@ function StudentsPage() {
                 </p>
 
                 <p className="mt-1 whitespace-pre-wrap text-sm text-slate-900">
-                  {selectedStudent.notes || '-'}
+                  {selectedStudent.notes || "-"}
                 </p>
               </div>
             </div>
@@ -756,9 +698,7 @@ function StudentsPage() {
             <div className="flex flex-col gap-2 border-t border-slate-200 bg-slate-50 px-5 py-4 sm:flex-row sm:justify-end sm:px-6">
               <button
                 type="button"
-                onClick={() =>
-                  handleEdit(selectedStudent)
-                }
+                onClick={() => handleEdit(selectedStudent)}
                 className="rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50"
               >
                 Edit Student
@@ -766,12 +706,8 @@ function StudentsPage() {
 
               <button
                 type="button"
-                onClick={() =>
-                  handleDeactivate(selectedStudent.id)
-                }
-                disabled={
-                  selectedStudent.status === 'inactive'
-                }
+                onClick={() => handleDeactivate(selectedStudent.id)}
+                disabled={selectedStudent.status === "inactive"}
                 className="rounded-lg border border-rose-200 bg-white px-4 py-2 text-sm font-medium text-rose-600 transition hover:bg-rose-50 disabled:cursor-not-allowed disabled:opacity-40"
               >
                 Deactivate

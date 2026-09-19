@@ -49,7 +49,7 @@ const ENROLLMENT_SELECT = `
     b.batch_code,
     b.name AS batch_name,
 
-    b.course_id,
+    en.course_id,
     c.course_code,
     c.name AS course_name,
 
@@ -71,11 +71,11 @@ const ENROLLMENT_SELECT = `
   INNER JOIN students s
     ON s.id = en.student_id
 
-  INNER JOIN batches b
-    ON b.id = en.batch_id
+ LEFT JOIN batches b
+  ON b.id = en.batch_id
 
-  INNER JOIN courses c
-    ON c.id = b.course_id
+LEFT JOIN courses c
+  ON c.id = en.course_id
 
   LEFT JOIN employees e
     ON e.id = b.trainer_employee_id
@@ -278,8 +278,9 @@ function updateEnrollment(id, enrollment) {
       `
       UPDATE enrollments
       SET
-        batch_id = @batchId,
-        enrolled_at = @enrolledAt,
+       course_id = @courseId,
+  batch_id = @batchId,
+  enrolled_at = @enrolledAt,
         withdrawn_at = @withdrawnAt,
         status = @status,
         agreed_fee_minor = @agreedFeeMinor,
@@ -292,6 +293,7 @@ function updateEnrollment(id, enrollment) {
     )
     .run({
       id,
+      courseId: enrollment.courseId,
       batchId: enrollment.batchId,
       enrolledAt: enrollment.enrolledAt,
       withdrawnAt: enrollment.withdrawnAt,
