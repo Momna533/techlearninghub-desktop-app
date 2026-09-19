@@ -9,6 +9,8 @@
     "ACADEMY_COURSES_VIEW": "academy.courses.view",
     "ACADEMY_COURSES_MANAGE": "academy.courses.manage",
     "ACADEMY_BATCHES_VIEW": "academy.batches.view",
+    "ACADEMY_BATCHES_MANAGE": "academy.batches.manage",
+    "ACADEMY_ENROLLMENTS_MANAGE": "academy.enrollments.manage",
     "ACADEMY_ATTENDANCE_VIEW": "academy.attendance.view",
     "ACADEMY_FEES_VIEW": "academy.fees.view",
     "ACADEMY_CERTIFICATES_VIEW": "academy.certificates.view",
@@ -76,6 +78,22 @@
       "name": "View batches",
       "description": "Access academy batches."
     },
+{
+  "code": "academy.batches.manage",
+  "name": "Manage batches",
+  "description": "Create and update academy batches."
+},
+    {
+  "code": "academy.enrollments.view",
+  "name": "View enrollments",
+  "description": "Access academy student admissions and enrollments."
+},
+
+{
+  "code": "academy.enrollments.manage",
+  "name": "Manage enrollments",
+  "description": "Create, update, and manage academy student admissions."
+},
     {
       "code": "academy.attendance.view",
       "name": "View attendance",

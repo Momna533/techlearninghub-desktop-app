@@ -17,6 +17,9 @@ const { registerRbacIpc } = require("./ipc/rbac.ipc");
 const { registerStudentIpc } = require("./ipc/student.ipc");
 const { registerCoursesIpc } = require("./ipc/courses.ipc");
 const { registerBatchesIpc } = require("./ipc/batch.ipc");
+const { registerEnrollmentsIpc } = require("./ipc/enrollments.ipc");
+const { registerAdmissionIpc } = require("./ipc/admission.ipc");
+
 const { runShellSmoke } = require("./smoke-shell");
 
 const isDevelopment = Boolean(process.env.ELECTRON_RENDERER_URL);
@@ -80,6 +83,8 @@ app.whenReady().then(async () => {
   registerStudentIpc({ ipcMain });
   registerCoursesIpc({ ipcMain });
   registerBatchesIpc({ ipcMain });
+  registerEnrollmentsIpc({ ipcMain });
+  registerAdmissionIpc({ ipcMain });
 
   createMainWindow();
 

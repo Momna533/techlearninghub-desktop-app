@@ -36,10 +36,6 @@ function validateBatch(batch) {
     errors.courseId = "Course is required.";
   }
 
-  if (!batch.trainerEmployeeId) {
-    errors.trainerEmployeeId = "Trainer is required.";
-  }
-
   if (!batch.startDate) {
     errors.startDate = "Start date is required.";
   }
@@ -154,18 +150,17 @@ function validateReferences(batch) {
     error.code = "INVALID_COURSE";
     throw error;
   }
+  // const trainers = findTrainerEmployees();
 
-  const trainers = findTrainerEmployees();
+  // const trainerExists = trainers.some(
+  //   (trainer) => trainer.id === batch.trainerEmployeeId,
+  // );
 
-  const trainerExists = trainers.some(
-    (trainer) => trainer.id === batch.trainerEmployeeId,
-  );
-
-  if (!trainerExists) {
-    const error = new Error("Selected trainer does not exist or is inactive.");
-    error.code = "INVALID_TRAINER";
-    throw error;
-  }
+  // if (!trainerExists) {
+  //   const error = new Error("Selected trainer does not exist or is inactive.");
+  //   error.code = "INVALID_TRAINER";
+  //   throw error;
+  // }
 }
 
 function getBatches(filters = {}) {

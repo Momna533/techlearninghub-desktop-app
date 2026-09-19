@@ -45,6 +45,21 @@ function getDatabaseStatus() {
   };
 }
 
+function transaction(callback) {
+  const database = getDatabase();
+
+  database.exec("BEGIN");
+
+  try {
+    const result = callback(database);
+    database.exec("COMMIT");
+    return result;
+  } catch (error) {
+    database.exec("ROLLBACK");
+    throw error;
+  }
+}
+
 function closeDatabase() {
   if (!database) return;
 
@@ -59,4 +74,5 @@ module.exports = {
   getDatabase,
   getDatabaseStatus,
   initializeDatabase,
+  transaction,
 };

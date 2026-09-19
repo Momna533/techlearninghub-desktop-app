@@ -10,6 +10,8 @@ import {
   getBatch,
   createBatch,
   updateBatch,
+  listBatchCourses,
+  listBatchTrainers,
 } from "../services/batch.api";
 
 const EMPTY_STATE = {
@@ -28,7 +30,10 @@ function formatFee(batch) {
 }
 
 function formatSchedule(batch) {
-  const days = batch.days?.length ? batch.days.join(", ") : "—";
+  const days =
+    Array.isArray(batch.days) && batch.days.length
+      ? batch.days.join(", ")
+      : "—";
 
   if (!batch.startTime || !batch.endTime) {
     return days;
@@ -37,6 +42,7 @@ function formatSchedule(batch) {
   return (
     <>
       <span>{days}</span>
+
       <small className="block text-xs text-slate-500">
         {batch.startTime} - {batch.endTime}
       </small>
@@ -44,26 +50,33 @@ function formatSchedule(batch) {
   );
 }
 
+function formatStatus(status) {
+  if (!status) {
+    return "—";
+  }
+
+  return status.charAt(0).toUpperCase() + status.slice(1);
+}
+
 function BatchesPage({ user }) {
   const [batches, setBatches] = useState([]);
+  const [courses, setCourses] = useState([]);
+  const [trainers, setTrainers] = useState([]);
+
   const [state, setState] = useState(EMPTY_STATE);
+  const [actionError, setActionError] = useState("");
+  const [formLoading, setFormLoading] = useState(false);
 
   const [search, setSearch] = useState("");
   const [courseId, setCourseId] = useState("all");
   const [trainerEmployeeId, setTrainerEmployeeId] = useState("all");
   const [status, setStatus] = useState("all");
 
-  const [courses, setCourses] = useState([]);
-  const [trainers, setTrainers] = useState([]);
-
   const [modal, setModal] = useState({
     open: false,
     mode: null,
     batch: null,
   });
-
-  const [formLoading, setFormLoading] = useState(false);
-  const [actionError, setActionError] = useState("");
 
   async function loadBatches() {
     setState({
@@ -95,7 +108,7 @@ function BatchesPage({ user }) {
         error: "",
       });
     } catch (error) {
-      console.error(error);
+      console.error("Failed to load batches:", error);
 
       setState({
         loading: false,
@@ -107,8 +120,8 @@ function BatchesPage({ user }) {
   async function loadBatchOptions() {
     try {
       const [coursesResponse, trainersResponse] = await Promise.all([
-        window.desktop.batches.courses(),
-        window.desktop.batches.trainers(),
+        listBatchCourses(),
+        listBatchTrainers(),
       ]);
 
       if (coursesResponse.success) {
@@ -119,7 +132,7 @@ function BatchesPage({ user }) {
         setTrainers(trainersResponse.trainers || []);
       }
     } catch (error) {
-      console.error(error);
+      console.error("Failed to load batch options:", error);
     }
   }
 
@@ -174,7 +187,7 @@ function BatchesPage({ user }) {
         batch: response.batch,
       });
     } catch (error) {
-      console.error(error);
+      console.error("Failed to load batch:", error);
 
       setActionError("Failed to load batch.");
     }
@@ -198,20 +211,24 @@ function BatchesPage({ user }) {
         batch: response.batch,
       });
     } catch (error) {
-      console.error(error);
+      console.error("Failed to load batch:", error);
 
       setActionError("Failed to load batch.");
     }
   }
 
   function closeModal() {
-    if (formLoading) return;
+    if (formLoading) {
+      return;
+    }
 
     setModal({
       open: false,
       mode: null,
       batch: null,
     });
+
+    setActionError("");
   }
 
   async function handleSubmit(formData) {
@@ -230,8 +247,6 @@ function BatchesPage({ user }) {
       if (!response.success) {
         setActionError(response.message || "Batch operation failed.");
 
-        setFormLoading(false);
-
         return;
       }
 
@@ -243,7 +258,7 @@ function BatchesPage({ user }) {
 
       await loadBatches();
     } catch (error) {
-      console.error(error);
+      console.error("Batch operation failed:", error);
 
       setActionError(error.message || "Batch operation failed.");
     } finally {
@@ -264,15 +279,15 @@ function BatchesPage({ user }) {
           </h1>
 
           <p className="mt-1 text-sm text-slate-500">
-            Manage academy batches, schedules, trainers and capacity.
+            Manage class schedules, trainers, rooms, capacity and batch fees.
           </p>
         </div>
 
         <Can user={user} permission={PERMISSIONS.ACADEMY_BATCHES_MANAGE}>
           <button
             type="button"
-            className="inline-flex w-fit items-center justify-center rounded-lg bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-offset-2"
             onClick={openCreate}
+            className="inline-flex w-fit items-center justify-center rounded-lg bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-offset-2"
           >
             + New Batch
           </button>
@@ -318,7 +333,7 @@ function BatchesPage({ user }) {
           className="min-w-0 flex-1 rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-slate-500 focus:ring-2 focus:ring-slate-200"
           value={search}
           onChange={(event) => setSearch(event.target.value)}
-          placeholder="Search batches..."
+          placeholder="Search batches, courses or trainers..."
         />
 
         <select
@@ -355,13 +370,9 @@ function BatchesPage({ user }) {
           onChange={(event) => setStatus(event.target.value)}
         >
           <option value="all">All Statuses</option>
-
           <option value="planned">Planned</option>
-
           <option value="active">Active</option>
-
           <option value="completed">Completed</option>
-
           <option value="cancelled">Cancelled</option>
         </select>
       </section>
@@ -390,8 +401,18 @@ function BatchesPage({ user }) {
             </strong>
 
             <span className="mt-1 text-sm text-slate-500">
-              Create your first batch to get started.
+              Create a batch to start scheduling classes.
             </span>
+
+            <Can user={user} permission={PERMISSIONS.ACADEMY_BATCHES_MANAGE}>
+              <button
+                type="button"
+                onClick={openCreate}
+                className="mt-4 rounded-lg bg-slate-900 px-4 py-2 text-sm font-semibold text-white transition hover:bg-slate-800"
+              >
+                + New Batch
+              </button>
+            </Can>
           </div>
         ) : (
           <div className="overflow-x-auto">
@@ -401,35 +422,27 @@ function BatchesPage({ user }) {
                   <th className="px-5 py-3 text-xs font-semibold uppercase tracking-wide text-slate-500">
                     Batch
                   </th>
-
                   <th className="px-5 py-3 text-xs font-semibold uppercase tracking-wide text-slate-500">
                     Course
                   </th>
-
                   <th className="px-5 py-3 text-xs font-semibold uppercase tracking-wide text-slate-500">
                     Trainer
                   </th>
-
                   <th className="px-5 py-3 text-xs font-semibold uppercase tracking-wide text-slate-500">
                     Schedule
                   </th>
-
                   <th className="px-5 py-3 text-xs font-semibold uppercase tracking-wide text-slate-500">
                     Dates
                   </th>
-
                   <th className="px-5 py-3 text-xs font-semibold uppercase tracking-wide text-slate-500">
                     Capacity
                   </th>
-
                   <th className="px-5 py-3 text-xs font-semibold uppercase tracking-wide text-slate-500">
                     Fee
                   </th>
-
                   <th className="px-5 py-3 text-xs font-semibold uppercase tracking-wide text-slate-500">
                     Status
                   </th>
-
                   <th className="px-5 py-3 text-xs font-semibold uppercase tracking-wide text-slate-500">
                     Actions
                   </th>
@@ -454,11 +467,11 @@ function BatchesPage({ user }) {
                     <td className="px-5 py-4">
                       <div className="flex flex-col">
                         <strong className="text-sm font-medium text-slate-800">
-                          {batch.courseName}
+                          {batch.courseName || "—"}
                         </strong>
 
                         <span className="mt-0.5 text-xs text-slate-500">
-                          {batch.courseCode}
+                          {batch.courseCode || "—"}
                         </span>
                       </div>
                     </td>
@@ -471,11 +484,13 @@ function BatchesPage({ user }) {
                           </strong>
 
                           <span className="mt-0.5 text-xs text-slate-500">
-                            {batch.trainerEmployeeCode}
+                            {batch.trainerEmployeeCode || "—"}
                           </span>
                         </div>
                       ) : (
-                        <span className="text-sm text-slate-400">—</span>
+                        <span className="text-sm text-slate-400">
+                          Not assigned
+                        </span>
                       )}
                     </td>
 
@@ -507,6 +522,7 @@ function BatchesPage({ user }) {
                       <div className="flex flex-col">
                         <strong className="text-sm font-medium text-slate-800">
                           {batch.enrolledCount}
+
                           {batch.capacity !== null &&
                             batch.capacity !== undefined &&
                             ` / ${batch.capacity}`}
@@ -523,8 +539,8 @@ function BatchesPage({ user }) {
                     </td>
 
                     <td className="px-5 py-4">
-                      <span className="inline-flex rounded-full bg-slate-100 px-2.5 py-1 text-xs font-medium capitalize text-slate-700">
-                        {batch.status}
+                      <span className="inline-flex rounded-full bg-slate-100 px-2.5 py-1 text-xs font-medium text-slate-700">
+                        {formatStatus(batch.status)}
                       </span>
                     </td>
 
@@ -532,8 +548,8 @@ function BatchesPage({ user }) {
                       <div className="flex items-center gap-2">
                         <button
                           type="button"
-                          className="rounded-md border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-700 transition hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-slate-200"
                           onClick={() => openView(batch)}
+                          className="rounded-md border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-700 transition hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-slate-200"
                         >
                           View
                         </button>
@@ -544,8 +560,8 @@ function BatchesPage({ user }) {
                         >
                           <button
                             type="button"
-                            className="rounded-md border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-700 transition hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-slate-200"
                             onClick={() => openEdit(batch)}
+                            className="rounded-md border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-700 transition hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-slate-200"
                           >
                             Edit
                           </button>
@@ -587,9 +603,9 @@ function BatchesPage({ user }) {
 
               <button
                 type="button"
-                className="flex h-9 w-9 items-center justify-center rounded-lg text-2xl leading-none text-slate-400 transition hover:bg-slate-100 hover:text-slate-700 disabled:cursor-not-allowed disabled:opacity-50"
                 onClick={closeModal}
                 disabled={formLoading}
+                className="flex h-9 w-9 items-center justify-center rounded-lg text-2xl leading-none text-slate-400 transition hover:bg-slate-100 hover:text-slate-700 disabled:cursor-not-allowed disabled:opacity-50"
               >
                 ×
               </button>

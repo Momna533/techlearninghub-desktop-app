@@ -67,4 +67,25 @@ contextBridge.exposeInMainWorld("desktop", {
 
     trainers: () => ipcRenderer.invoke("batches:trainers"),
   },
+  enrollments: {
+    list: (filters = {}) => ipcRenderer.invoke("enrollments:list", filters),
+
+    get: (id) => ipcRenderer.invoke("enrollments:get", id),
+
+    getByStudent: (studentId) =>
+      ipcRenderer.invoke("enrollments:student", studentId),
+
+    getByBatch: (batchId) => ipcRenderer.invoke("enrollments:batch", batchId),
+
+    create: (enrollment) =>
+      ipcRenderer.invoke("enrollments:create", enrollment),
+
+    update: (payload) => ipcRenderer.invoke("enrollments:update", payload),
+
+    updateStatus: (payload) =>
+      ipcRenderer.invoke("enrollments:status", payload),
+  },
+  admissions: {
+    create: (admission) => ipcRenderer.invoke("admissions:create", admission),
+  },
 });

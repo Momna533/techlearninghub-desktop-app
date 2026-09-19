@@ -1,64 +1,184 @@
+import { useEffect, useState } from "react";
 
-import { useEffect, useState } from 'react';
+import { createStudent, updateStudent } from "../../services/student.api";
 
-import {
-  createStudent,
-  updateStudent,
-} from '../../services/student.api';
+import { listBatchCourses, listBatches } from "../../services/batch.api";
+
+import { createAdmission } from "../../services/admission.api";
 
 const EMPTY_FORM = {
-  studentCode: '',
-  firstName: '',
-  lastName: '',
-  guardianName: '',
-  guardianPhone: '',
-  phone: '',
-  email: '',
-  address: '',
-  dateOfBirth: '',
-  status: 'active',
-  notes: '',
+  studentCode: "",
+  firstName: "",
+  lastName: "",
+  guardianName: "",
+  guardianPhone: "",
+  phone: "",
+  email: "",
+  address: "",
+  dateOfBirth: "",
+  status: "active",
+  notes: "",
+
+  courseId: "",
+  batchId: "",
+  enrolledAt: new Date().toISOString().slice(0, 10),
+  agreedFee: "",
+  discount: "",
+  enrollmentStatus: "active",
+  currencyCode: "PKR",
+  enrollmentNotes: "",
 };
 
 const INPUT_CLASS =
-  'w-full rounded-lg border border-slate-300 bg-white px-3.5 py-2.5 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-slate-500 focus:ring-2 focus:ring-slate-200 disabled:cursor-not-allowed disabled:bg-slate-50 disabled:text-slate-500';
+  "w-full rounded-lg border border-slate-300 bg-white px-3.5 py-2.5 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-slate-500 focus:ring-2 focus:ring-slate-200 disabled:cursor-not-allowed disabled:bg-slate-50 disabled:text-slate-500";
 
 const ERROR_INPUT_CLASS =
-  'w-full rounded-lg border border-rose-300 bg-white px-3.5 py-2.5 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-rose-500 focus:ring-2 focus:ring-rose-100 disabled:cursor-not-allowed disabled:bg-slate-50';
+  "w-full rounded-lg border border-rose-300 bg-white px-3.5 py-2.5 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-rose-500 focus:ring-2 focus:ring-rose-100 disabled:cursor-not-allowed disabled:bg-slate-50";
 
 function StudentForm({ student = null, onSuccess, onCancel }) {
   const [form, setForm] = useState(EMPTY_FORM);
   const [errors, setErrors] = useState({});
   const [submitting, setSubmitting] = useState(false);
-  const [serverError, setServerError] = useState('');
+  const [serverError, setServerError] = useState("");
+
+  const [courses, setCourses] = useState([]);
+  const [batches, setBatches] = useState([]);
+  const [loadingCourses, setLoadingCourses] = useState(false);
+  const [loadingBatches, setLoadingBatches] = useState(false);
 
   const isEditing = Boolean(student);
 
   useEffect(() => {
     if (!student) {
-      setForm(EMPTY_FORM);
+      setForm({
+        ...EMPTY_FORM,
+        enrolledAt: new Date().toISOString().slice(0, 10),
+      });
+
       setErrors({});
-      setServerError('');
+      setServerError("");
       return;
     }
 
     setForm({
-      studentCode: student.student_code || '',
-      firstName: student.first_name || '',
-      lastName: student.last_name || '',
-      guardianName: student.guardian_name || '',
-      guardianPhone: student.guardian_phone || '',
-      phone: student.phone || '',
-      email: student.email || '',
-      address: student.address || '',
-      dateOfBirth: student.date_of_birth || '',
-      status: student.status || 'active',
-      notes: student.notes || '',
+      studentCode: student.student_code || "",
+      firstName: student.first_name || "",
+      lastName: student.last_name || "",
+      guardianName: student.guardian_name || "",
+      guardianPhone: student.guardian_phone || "",
+      phone: student.phone || "",
+      email: student.email || "",
+      address: student.address || "",
+      dateOfBirth: student.date_of_birth || "",
+      status: student.status || "active",
+      notes: student.notes || "",
+
+      courseId: "",
+      batchId: "",
+      enrolledAt: new Date().toISOString().slice(0, 10),
+      agreedFee: "",
+      discount: "",
+      enrollmentStatus: "active",
+      currencyCode: "PKR",
+      enrollmentNotes: "",
     });
 
     setErrors({});
-    setServerError('');
+    setServerError("");
   }, [student]);
+
+  useEffect(() => {
+    if (isEditing) return;
+
+    let cancelled = false;
+
+    async function loadCourses() {
+      setLoadingCourses(true);
+
+      try {
+        const result = await listBatchCourses();
+
+        if (cancelled) return;
+
+        if (!result.success) {
+          setServerError(result.message || "Unable to load courses.");
+
+          return;
+        }
+
+        setCourses(result.courses || []);
+      } catch (error) {
+        if (cancelled) return;
+
+        console.error("[StudentForm] Failed to load courses:", error);
+
+        setServerError("Unable to load courses.");
+      } finally {
+        if (!cancelled) {
+          setLoadingCourses(false);
+        }
+      }
+    }
+
+    loadCourses();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [isEditing]);
+
+  useEffect(() => {
+    if (isEditing || !form.courseId) {
+      setBatches([]);
+      return;
+    }
+
+    let cancelled = false;
+
+    async function loadBatches() {
+      setLoadingBatches(true);
+
+      try {
+        const result = await listBatches({
+          courseId: form.courseId,
+          status: "all",
+        });
+
+        if (cancelled) return;
+
+        if (!result.success) {
+          setServerError(result.message || "Unable to load batches.");
+
+          setBatches([]);
+          return;
+        }
+
+        const availableBatches = (result.batches || []).filter(
+          (batch) => batch.status === "planned" || batch.status === "active",
+        );
+
+        setBatches(availableBatches);
+      } catch (error) {
+        if (cancelled) return;
+
+        console.error("[StudentForm] Failed to load batches:", error);
+
+        setServerError("Unable to load batches.");
+
+        setBatches([]);
+      } finally {
+        if (!cancelled) {
+          setLoadingBatches(false);
+        }
+      }
+    }
+
+    loadBatches();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [form.courseId, isEditing]);
 
   function handleChange(event) {
     const { name, value } = event.target;
@@ -70,43 +190,130 @@ function StudentForm({ student = null, onSuccess, onCancel }) {
 
     setErrors((current) => ({
       ...current,
-      [name]: '',
+      [name]: "",
     }));
 
-    setServerError('');
+    setServerError("");
+  }
+
+  function handleCourseChange(event) {
+    const { value } = event.target;
+
+    setForm((current) => ({
+      ...current,
+      courseId: value,
+      batchId: "",
+      agreedFee: "",
+    }));
+
+    setErrors((current) => ({
+      ...current,
+      courseId: "",
+      batchId: "",
+      agreedFee: "",
+    }));
+
+    setServerError("");
+  }
+
+  function handleBatchChange(event) {
+    const { value } = event.target;
+
+    const selectedBatch = batches.find(
+      (batch) => String(batch.id) === String(value),
+    );
+
+    setForm((current) => ({
+      ...current,
+      batchId: value,
+      agreedFee:
+        selectedBatch?.feeMinor !== null &&
+        selectedBatch?.feeMinor !== undefined
+          ? (Number(selectedBatch.feeMinor) / 100).toString()
+          : current.agreedFee,
+      currencyCode:
+        selectedBatch?.currencyCode || current.currencyCode || "PKR",
+    }));
+
+    setErrors((current) => ({
+      ...current,
+      batchId: "",
+      agreedFee: "",
+    }));
+
+    setServerError("");
   }
 
   function validate() {
     const nextErrors = {};
 
     if (!form.studentCode.trim()) {
-      nextErrors.studentCode = 'Student ID is required.';
+      nextErrors.studentCode = "Student ID is required.";
     }
 
     if (!form.firstName.trim()) {
-      nextErrors.firstName = 'First name is required.';
+      nextErrors.firstName = "First name is required.";
     }
 
     if (!form.lastName.trim()) {
-      nextErrors.lastName = 'Last name is required.';
+      nextErrors.lastName = "Last name is required.";
     }
 
     if (!form.guardianName.trim()) {
-      nextErrors.guardianName =
-        'Guardian/father name is required.';
+      nextErrors.guardianName = "Guardian/father name is required.";
     }
 
     if (!form.phone.trim()) {
-      nextErrors.phone = 'Phone number is required.';
+      nextErrors.phone = "Phone number is required.";
     }
 
     if (form.email.trim()) {
-      const emailPattern =
-        /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
       if (!emailPattern.test(form.email.trim())) {
-        nextErrors.email =
-          'Enter a valid email address.';
+        nextErrors.email = "Enter a valid email address.";
+      }
+    }
+
+    if (!isEditing) {
+      if (!form.courseId) {
+        nextErrors.courseId = "Course is required.";
+      }
+
+      // if (!form.batchId) {
+      //   nextErrors.batchId = "Batch is required.";
+      // }
+
+      if (!form.enrolledAt) {
+        nextErrors.enrolledAt = "Admission date is required.";
+      }
+
+      if (
+        form.agreedFee === "" ||
+        form.agreedFee === null ||
+        form.agreedFee === undefined
+      ) {
+        nextErrors.agreedFee = "Agreed fee is required.";
+      } else if (
+        Number.isNaN(Number(form.agreedFee)) ||
+        Number(form.agreedFee) < 0
+      ) {
+        nextErrors.agreedFee = "Agreed fee must be zero or greater.";
+      }
+
+      if (
+        form.discount !== "" &&
+        (Number.isNaN(Number(form.discount)) || Number(form.discount) < 0)
+      ) {
+        nextErrors.discount = "Discount must be zero or greater.";
+      }
+
+      if (
+        form.discount !== "" &&
+        form.agreedFee !== "" &&
+        Number(form.discount) > Number(form.agreedFee)
+      ) {
+        nextErrors.discount = "Discount cannot be greater than the agreed fee.";
       }
     }
 
@@ -116,7 +323,7 @@ function StudentForm({ student = null, onSuccess, onCancel }) {
   async function handleSubmit(event) {
     event.preventDefault();
 
-    setServerError('');
+    setServerError("");
 
     const validationErrors = validate();
 
@@ -129,36 +336,88 @@ function StudentForm({ student = null, onSuccess, onCancel }) {
     setSubmitting(true);
 
     try {
-      const result = isEditing
-        ? await updateStudent(student.id, form)
-        : await createStudent(form);
+      if (isEditing) {
+        const result = await updateStudent(student.id, {
+          studentCode: form.studentCode,
+          firstName: form.firstName,
+          lastName: form.lastName,
+          guardianName: form.guardianName,
+          guardianPhone: form.guardianPhone,
+          phone: form.phone,
+          email: form.email,
+          address: form.address,
+          dateOfBirth: form.dateOfBirth,
+          status: form.status,
+          notes: form.notes,
+        });
 
-      if (!result.success) {
-        if (
-          result.code === 'VALIDATION_ERROR' &&
-          result.details
-        ) {
-          setErrors(result.details);
+        if (!result.success) {
+          if (result.code === "VALIDATION_ERROR" && result.details) {
+            setErrors(result.details);
+            return;
+          }
+
+          setServerError(result.message || "Unable to update student.");
+
           return;
         }
 
-        setServerError(
-          result.message || 'Unable to save student.'
-        );
+        onSuccess(result.student);
+        return;
+      }
+
+      const result = await createAdmission({
+        studentCode: form.studentCode,
+        firstName: form.firstName,
+        lastName: form.lastName,
+        guardianName: form.guardianName,
+        guardianPhone: form.guardianPhone,
+        phone: form.phone,
+        email: form.email,
+        address: form.address,
+        dateOfBirth: form.dateOfBirth,
+        status: form.status,
+        notes: form.notes,
+
+        courseId: form.courseId,
+        batchId: form.batchId,
+        enrolledAt: form.enrolledAt,
+        agreedFeeMinor: Math.round(Number(form.agreedFee) * 100),
+        discountMinor:
+          form.discount === "" ? 0 : Math.round(Number(form.discount) * 100),
+        enrollmentStatus: form.enrollmentStatus,
+        currencyCode: form.currencyCode,
+        enrollmentNotes: form.enrollmentNotes,
+      });
+
+      if (!result.success) {
+        if (result.code === "VALIDATION_ERROR" && result.details) {
+          const admissionErrors = {
+            ...result.details,
+          };
+
+          if (admissionErrors.agreedFeeMinor) {
+            admissionErrors.agreedFee = admissionErrors.agreedFeeMinor;
+          }
+
+          if (admissionErrors.discountMinor) {
+            admissionErrors.discount = admissionErrors.discountMinor;
+          }
+
+          setErrors(admissionErrors);
+          return;
+        }
+
+        setServerError(result.message || "Unable to admit student.");
 
         return;
       }
 
       onSuccess(result.student);
     } catch (error) {
-      console.error(
-        '[StudentForm] Submit failed:',
-        error
-      );
+      console.error("[StudentForm] Submit failed:", error);
 
-      setServerError(
-        'Something went wrong while saving the student.'
-      );
+      setServerError("Something went wrong while saving the student.");
     } finally {
       setSubmitting(false);
     }
@@ -174,11 +433,12 @@ function StudentForm({ student = null, onSuccess, onCancel }) {
     );
   }
 
+  const selectedBatch = batches.find(
+    (batch) => String(batch.id) === String(form.batchId),
+  );
+
   return (
-    <form
-      onSubmit={handleSubmit}
-      className="space-y-7"
-    >
+    <form onSubmit={handleSubmit} className="space-y-7">
       {serverError && (
         <div
           role="alert"
@@ -189,13 +449,9 @@ function StudentForm({ student = null, onSuccess, onCancel }) {
           </div>
 
           <div>
-            <p className="font-medium">
-              Unable to save student
-            </p>
+            <p className="font-medium">Unable to save student</p>
 
-            <p className="mt-0.5 text-rose-600">
-              {serverError}
-            </p>
+            <p className="mt-0.5 text-rose-600">{serverError}</p>
           </div>
         </div>
       )}
@@ -207,8 +463,7 @@ function StudentForm({ student = null, onSuccess, onCancel }) {
           </h3>
 
           <p className="mt-1 text-xs text-slate-500">
-            Enter the student's identification and personal
-            details.
+            Enter the student's identification and personal details.
           </p>
         </div>
 
@@ -230,14 +485,10 @@ function StudentForm({ student = null, onSuccess, onCancel }) {
               disabled={submitting}
               placeholder="e.g. STU-001"
               autoComplete="off"
-              className={
-                errors.studentCode
-                  ? ERROR_INPUT_CLASS
-                  : INPUT_CLASS
-              }
+              className={errors.studentCode ? ERROR_INPUT_CLASS : INPUT_CLASS}
             />
 
-            {renderFieldError('studentCode')}
+            {renderFieldError("studentCode")}
           </div>
 
           <div>
@@ -255,11 +506,7 @@ function StudentForm({ student = null, onSuccess, onCancel }) {
               value={form.status}
               onChange={handleChange}
               disabled={submitting}
-              className={
-                errors.status
-                  ? ERROR_INPUT_CLASS
-                  : INPUT_CLASS
-              }
+              className={errors.status ? ERROR_INPUT_CLASS : INPUT_CLASS}
             >
               <option value="active">Active</option>
               <option value="inactive">Inactive</option>
@@ -267,7 +514,7 @@ function StudentForm({ student = null, onSuccess, onCancel }) {
               <option value="withdrawn">Withdrawn</option>
             </select>
 
-            {renderFieldError('status')}
+            {renderFieldError("status")}
           </div>
 
           <div>
@@ -287,14 +534,10 @@ function StudentForm({ student = null, onSuccess, onCancel }) {
               disabled={submitting}
               placeholder="Enter first name"
               autoComplete="given-name"
-              className={
-                errors.firstName
-                  ? ERROR_INPUT_CLASS
-                  : INPUT_CLASS
-              }
+              className={errors.firstName ? ERROR_INPUT_CLASS : INPUT_CLASS}
             />
 
-            {renderFieldError('firstName')}
+            {renderFieldError("firstName")}
           </div>
 
           <div>
@@ -314,14 +557,10 @@ function StudentForm({ student = null, onSuccess, onCancel }) {
               disabled={submitting}
               placeholder="Enter last name"
               autoComplete="family-name"
-              className={
-                errors.lastName
-                  ? ERROR_INPUT_CLASS
-                  : INPUT_CLASS
-              }
+              className={errors.lastName ? ERROR_INPUT_CLASS : INPUT_CLASS}
             />
 
-            {renderFieldError('lastName')}
+            {renderFieldError("lastName")}
           </div>
 
           <div>
@@ -339,14 +578,10 @@ function StudentForm({ student = null, onSuccess, onCancel }) {
               value={form.dateOfBirth}
               onChange={handleChange}
               disabled={submitting}
-              className={
-                errors.dateOfBirth
-                  ? ERROR_INPUT_CLASS
-                  : INPUT_CLASS
-              }
+              className={errors.dateOfBirth ? ERROR_INPUT_CLASS : INPUT_CLASS}
             />
 
-            {renderFieldError('dateOfBirth')}
+            {renderFieldError("dateOfBirth")}
           </div>
         </div>
       </section>
@@ -360,8 +595,7 @@ function StudentForm({ student = null, onSuccess, onCancel }) {
           </h3>
 
           <p className="mt-1 text-xs text-slate-500">
-            Add the student's contact details and guardian
-            information.
+            Add the student's contact details and guardian information.
           </p>
         </div>
 
@@ -383,14 +617,10 @@ function StudentForm({ student = null, onSuccess, onCancel }) {
               disabled={submitting}
               placeholder="Enter guardian name"
               autoComplete="name"
-              className={
-                errors.guardianName
-                  ? ERROR_INPUT_CLASS
-                  : INPUT_CLASS
-              }
+              className={errors.guardianName ? ERROR_INPUT_CLASS : INPUT_CLASS}
             />
 
-            {renderFieldError('guardianName')}
+            {renderFieldError("guardianName")}
           </div>
 
           <div>
@@ -410,14 +640,10 @@ function StudentForm({ student = null, onSuccess, onCancel }) {
               disabled={submitting}
               placeholder="e.g. 0300 1234567"
               autoComplete="tel"
-              className={
-                errors.guardianPhone
-                  ? ERROR_INPUT_CLASS
-                  : INPUT_CLASS
-              }
+              className={errors.guardianPhone ? ERROR_INPUT_CLASS : INPUT_CLASS}
             />
 
-            {renderFieldError('guardianPhone')}
+            {renderFieldError("guardianPhone")}
           </div>
 
           <div>
@@ -438,14 +664,10 @@ function StudentForm({ student = null, onSuccess, onCancel }) {
               disabled={submitting}
               placeholder="e.g. 0300 1234567"
               autoComplete="tel"
-              className={
-                errors.phone
-                  ? ERROR_INPUT_CLASS
-                  : INPUT_CLASS
-              }
+              className={errors.phone ? ERROR_INPUT_CLASS : INPUT_CLASS}
             />
 
-            {renderFieldError('phone')}
+            {renderFieldError("phone")}
           </div>
 
           <div>
@@ -465,14 +687,10 @@ function StudentForm({ student = null, onSuccess, onCancel }) {
               disabled={submitting}
               placeholder="student@example.com"
               autoComplete="email"
-              className={
-                errors.email
-                  ? ERROR_INPUT_CLASS
-                  : INPUT_CLASS
-              }
+              className={errors.email ? ERROR_INPUT_CLASS : INPUT_CLASS}
             />
 
-            {renderFieldError('email')}
+            {renderFieldError("email")}
           </div>
 
           <div className="sm:col-span-2">
@@ -492,16 +710,276 @@ function StudentForm({ student = null, onSuccess, onCancel }) {
               placeholder="Enter residential address"
               rows={3}
               className={`resize-y ${
-                errors.address
-                  ? ERROR_INPUT_CLASS
-                  : INPUT_CLASS
+                errors.address ? ERROR_INPUT_CLASS : INPUT_CLASS
               }`}
             />
 
-            {renderFieldError('address')}
+            {renderFieldError("address")}
           </div>
         </div>
       </section>
+
+      {!isEditing && (
+        <>
+          <div className="border-t border-slate-200" />
+
+          <section>
+            <div className="mb-4">
+              <h3 className="text-sm font-semibold text-slate-900">
+                Admission
+              </h3>
+
+              <p className="mt-1 text-xs text-slate-500">
+                Select the course and batch and set the student's admission fee.
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
+              <div>
+                <label
+                  htmlFor="courseId"
+                  className="mb-1.5 block text-sm font-medium text-slate-700"
+                >
+                  Course
+                  <span className="ml-1 text-rose-500">*</span>
+                </label>
+
+                <select
+                  id="courseId"
+                  name="courseId"
+                  value={form.courseId}
+                  onChange={handleCourseChange}
+                  disabled={submitting || loadingCourses}
+                  className={errors.courseId ? ERROR_INPUT_CLASS : INPUT_CLASS}
+                >
+                  <option value="">
+                    {loadingCourses ? "Loading courses..." : "Select course"}
+                  </option>
+
+                  {courses.map((course) => (
+                    <option key={course.id} value={course.id}>
+                      {course.courseCode} — {course.name}
+                    </option>
+                  ))}
+                </select>
+
+                {renderFieldError("courseId")}
+              </div>
+
+              <div>
+                <label
+                  htmlFor="batchId"
+                  className="mb-1.5 block text-sm font-medium text-slate-700"
+                >
+                  Batch
+                  <span className="ml-1 text-rose-500">*</span>
+                </label>
+
+                <select
+                  id="batchId"
+                  name="batchId"
+                  value={form.batchId}
+                  onChange={handleBatchChange}
+                  disabled={submitting || !form.courseId || loadingBatches}
+                  className={errors.batchId ? ERROR_INPUT_CLASS : INPUT_CLASS}
+                >
+                  <option value="">
+                    {!form.courseId
+                      ? "Select a course first"
+                      : loadingBatches
+                        ? "Loading batches..."
+                        : "Select batch"}
+                  </option>
+
+                  {batches.map((batch) => (
+                    <option key={batch.id} value={batch.id}>
+                      {batch.batchCode} — {batch.name}
+                    </option>
+                  ))}
+                </select>
+
+                {renderFieldError("batchId")}
+              </div>
+
+              <div>
+                <label
+                  htmlFor="enrolledAt"
+                  className="mb-1.5 block text-sm font-medium text-slate-700"
+                >
+                  Admission Date
+                  <span className="ml-1 text-rose-500">*</span>
+                </label>
+
+                <input
+                  id="enrolledAt"
+                  name="enrolledAt"
+                  type="date"
+                  value={form.enrolledAt}
+                  onChange={handleChange}
+                  disabled={submitting}
+                  className={
+                    errors.enrolledAt ? ERROR_INPUT_CLASS : INPUT_CLASS
+                  }
+                />
+
+                {renderFieldError("enrolledAt")}
+              </div>
+
+              <div>
+                <label
+                  htmlFor="enrollmentStatus"
+                  className="mb-1.5 block text-sm font-medium text-slate-700"
+                >
+                  Enrollment Status
+                </label>
+
+                <select
+                  id="enrollmentStatus"
+                  name="enrollmentStatus"
+                  value={form.enrollmentStatus}
+                  onChange={handleChange}
+                  disabled={submitting}
+                  className={INPUT_CLASS}
+                >
+                  <option value="active">Active</option>
+                  <option value="pending">Pending</option>
+                </select>
+              </div>
+
+              <div>
+                <label
+                  htmlFor="agreedFee"
+                  className="mb-1.5 block text-sm font-medium text-slate-700"
+                >
+                  Agreed Fee
+                  <span className="ml-1 text-rose-500">*</span>
+                </label>
+
+                <input
+                  id="agreedFee"
+                  name="agreedFee"
+                  type="number"
+                  min="0"
+                  step="0.01"
+                  value={form.agreedFee}
+                  onChange={handleChange}
+                  disabled={submitting}
+                  placeholder="e.g. 25000"
+                  className={errors.agreedFee ? ERROR_INPUT_CLASS : INPUT_CLASS}
+                />
+
+                {selectedBatch?.feeMinor !== null &&
+                  selectedBatch?.feeMinor !== undefined && (
+                    <p className="mt-1.5 text-xs text-slate-500">
+                      Batch fee: {form.currencyCode}{" "}
+                      {(Number(selectedBatch.feeMinor) / 100).toLocaleString()}
+                    </p>
+                  )}
+
+                {renderFieldError("agreedFee")}
+              </div>
+
+              <div>
+                <label
+                  htmlFor="discount"
+                  className="mb-1.5 block text-sm font-medium text-slate-700"
+                >
+                  Discount
+                </label>
+
+                <input
+                  id="discount"
+                  name="discount"
+                  type="number"
+                  min="0"
+                  step="0.01"
+                  value={form.discount}
+                  onChange={handleChange}
+                  disabled={submitting}
+                  placeholder="e.g. 2000"
+                  className={errors.discount ? ERROR_INPUT_CLASS : INPUT_CLASS}
+                />
+
+                {renderFieldError("discount")}
+              </div>
+
+              <div>
+                <label
+                  htmlFor="currencyCode"
+                  className="mb-1.5 block text-sm font-medium text-slate-700"
+                >
+                  Currency
+                </label>
+
+                <input
+                  id="currencyCode"
+                  name="currencyCode"
+                  value={form.currencyCode}
+                  onChange={handleChange}
+                  disabled={submitting}
+                  maxLength={3}
+                  className={INPUT_CLASS}
+                />
+
+                {renderFieldError("currencyCode")}
+              </div>
+
+              <div className="sm:col-span-2">
+                <label
+                  htmlFor="enrollmentNotes"
+                  className="mb-1.5 block text-sm font-medium text-slate-700"
+                >
+                  Admission Notes
+                </label>
+
+                <textarea
+                  id="enrollmentNotes"
+                  name="enrollmentNotes"
+                  value={form.enrollmentNotes}
+                  onChange={handleChange}
+                  disabled={submitting}
+                  placeholder="Add admission-specific notes..."
+                  rows={3}
+                  className={`resize-y ${
+                    errors.enrollmentNotes ? ERROR_INPUT_CLASS : INPUT_CLASS
+                  }`}
+                />
+
+                {renderFieldError("enrollmentNotes")}
+              </div>
+
+              {selectedBatch && (
+                <div className="sm:col-span-2 rounded-lg border border-slate-200 bg-slate-50 px-4 py-3">
+                  <div className="grid grid-cols-1 gap-3 text-sm sm:grid-cols-3">
+                    <div>
+                      <p className="text-xs text-slate-500">Batch</p>
+                      <p className="mt-0.5 font-medium text-slate-900">
+                        {selectedBatch.name}
+                      </p>
+                    </div>
+
+                    <div>
+                      <p className="text-xs text-slate-500">Schedule</p>
+                      <p className="mt-0.5 font-medium text-slate-900">
+                        {selectedBatch.days?.join(", ") || "Not set"}
+                      </p>
+                    </div>
+
+                    <div>
+                      <p className="text-xs text-slate-500">Seats</p>
+                      <p className="mt-0.5 font-medium text-slate-900">
+                        {selectedBatch.capacity
+                          ? `${selectedBatch.enrolledCount} / ${selectedBatch.capacity}`
+                          : `${selectedBatch.enrolledCount} enrolled`}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+          </section>
+        </>
+      )}
 
       <div className="border-t border-slate-200" />
 
@@ -533,13 +1011,11 @@ function StudentForm({ student = null, onSuccess, onCancel }) {
             placeholder="Add notes, remarks or additional information..."
             rows={4}
             className={`resize-y ${
-              errors.notes
-                ? ERROR_INPUT_CLASS
-                : INPUT_CLASS
+              errors.notes ? ERROR_INPUT_CLASS : INPUT_CLASS
             }`}
           />
 
-          {renderFieldError('notes')}
+          {renderFieldError("notes")}
         </div>
       </section>
 
@@ -561,12 +1037,12 @@ function StudentForm({ student = null, onSuccess, onCancel }) {
           {submitting ? (
             <>
               <span className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />
-              Saving...
+              {isEditing ? "Saving..." : "Admitting..."}
             </>
+          ) : isEditing ? (
+            "Update Student"
           ) : (
-            isEditing
-              ? 'Update Student'
-              : 'Create Student'
+            "Admit Student"
           )}
         </button>
       </div>
