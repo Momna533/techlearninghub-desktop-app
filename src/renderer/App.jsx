@@ -1,11 +1,14 @@
-import { useEffect, useState } from 'react';
-import { HashRouter } from 'react-router-dom';
-import LoginScreen from './LoginScreen';
-import AppRoutes from './routing/AppRoutes';
+import { useEffect, useState } from "react";
+import { HashRouter } from "react-router-dom";
+import LoginScreen from "./LoginScreen";
+import SignupScreen from "./SignupScreen";
+import AppRoutes from "./routing/AppRoutes";
 
 function App() {
+  const [showSignup, setShowSignup] = useState(false);
+
   const [authState, setAuthState] = useState({
-    status: 'checking',
+    status: "checking",
     user: null,
   });
 
@@ -20,22 +23,22 @@ function App() {
 
         if (session.authenticated) {
           setAuthState({
-            status: 'authenticated',
+            status: "authenticated",
             user: session.user,
           });
         } else {
           setAuthState({
-            status: 'unauthenticated',
+            status: "unauthenticated",
             user: null,
           });
         }
       } catch (error) {
-        console.error('Failed to restore authentication session:', error);
+        console.error("Failed to restore authentication session:", error);
 
         if (!isMounted) return;
 
         setAuthState({
-          status: 'unauthenticated',
+          status: "unauthenticated",
           user: null,
         });
       }
@@ -49,8 +52,10 @@ function App() {
   }, []);
 
   function handleLogin(user) {
+    setShowSignup(false);
+
     setAuthState({
-      status: 'authenticated',
+      status: "authenticated",
       user,
     });
   }
@@ -59,16 +64,18 @@ function App() {
     try {
       await window.desktop.auth.logout();
     } catch (error) {
-      console.error('Logout failed:', error);
+      console.error("Logout failed:", error);
     } finally {
       setAuthState({
-        status: 'unauthenticated',
+        status: "unauthenticated",
         user: null,
       });
+
+      setShowSignup(false);
     }
   }
 
-  if (authState.status === 'checking') {
+  if (authState.status === "checking") {
     return (
       <main className="auth-loading">
         <p>Checking authentication…</p>
@@ -76,8 +83,14 @@ function App() {
     );
   }
 
-  if (authState.status === 'unauthenticated') {
-    return <LoginScreen onLogin={handleLogin} />;
+  if (authState.status === "unauthenticated") {
+    if (showSignup) {
+      return <SignupScreen onLogin={() => setShowSignup(false)} />;
+    }
+
+    return (
+      <LoginScreen onLogin={handleLogin} onSignup={() => setShowSignup(true)} />
+    );
   }
 
   return (

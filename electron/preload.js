@@ -8,6 +8,8 @@ contextBridge.exposeInMainWorld("desktop", {
   auth: {
     login: (credentials) => ipcRenderer.invoke("auth:login", credentials),
 
+    signup: (data) => ipcRenderer.invoke("auth:signup", data),
+
     getSession: () => ipcRenderer.invoke("auth:get-session"),
 
     logout: () => ipcRenderer.invoke("auth:logout"),

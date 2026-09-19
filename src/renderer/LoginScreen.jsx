@@ -1,35 +1,74 @@
-import { useState } from 'react';
+import { useState } from "react";
 
 const isDevelopment = import.meta.env.DEV;
 
-function LoginScreen({ onLogin }) {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [errorMessage, setErrorMessage] = useState('');
+export default function LoginScreen({ onLogin, onSignup }) {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  function handleEmailChange(event) {
+    setEmail(event.target.value);
+
+    if (errorMessage) {
+      setErrorMessage("");
+    }
+  }
+
+  function handlePasswordChange(event) {
+    setPassword(event.target.value);
+
+    if (errorMessage) {
+      setErrorMessage("");
+    }
+  }
 
   async function handleSubmit(event) {
     event.preventDefault();
 
-    setErrorMessage('');
-    setIsSubmitting(true);
+    if (isSubmitting) {
+      return;
+    }
+
+    setErrorMessage("");
+
+    const normalizedEmail = email.trim().toLowerCase();
+
+    if (!normalizedEmail) {
+      setErrorMessage("Email is required.");
+      return;
+    }
+
+    if (!password) {
+      setErrorMessage("Password is required.");
+      return;
+    }
 
     try {
+      setIsSubmitting(true);
+
       const result = await window.desktop.auth.login({
-        email,
+        email: normalizedEmail,
         password,
       });
 
-      if (!result.success) {
-        setErrorMessage(result.message);
+      if (!result?.success) {
+        setErrorMessage(result?.message || "Invalid email or password.");
+        return;
+      }
+
+      if (!result.user) {
+        setErrorMessage("Login completed, but no user session was returned.");
         return;
       }
 
       onLogin(result.user);
     } catch (error) {
-      console.error('Login failed:', error);
+      console.error("Login failed:", error);
+
       setErrorMessage(
-        'Unable to complete login. Please check the application logs.',
+        error?.message || "Unable to complete login. Please try again.",
       );
     } finally {
       setIsSubmitting(false);
@@ -45,73 +84,74 @@ function LoginScreen({ onLogin }) {
           <h1>Welcome back</h1>
 
           <p>
-            Sign in to access the Software House + Training Academy
-            Management System.
+            Sign in to access the Software House + Training Academy Management
+            System.
           </p>
         </div>
 
+        {errorMessage && (
+          <p className="auth-error" role="alert">
+            {errorMessage}
+          </p>
+        )}
+
         <form className="auth-form" onSubmit={handleSubmit}>
-          <label htmlFor="email">
-            Email
-          </label>
+          <label htmlFor="login-email">Email</label>
 
           <input
-            id="email"
+            id="login-email"
             type="email"
             value={email}
-            onChange={(event) => setEmail(event.target.value)}
+            onChange={handleEmailChange}
             autoComplete="username"
             placeholder="you@example.com"
             disabled={isSubmitting}
             required
           />
 
-          <label htmlFor="password">
-            Password
-          </label>
+          <label htmlFor="login-password">Password</label>
 
           <input
-            id="password"
+            id="login-password"
             type="password"
             value={password}
-            onChange={(event) => setPassword(event.target.value)}
+            onChange={handlePasswordChange}
             autoComplete="current-password"
             placeholder="Enter your password"
             disabled={isSubmitting}
             required
           />
 
-          {errorMessage && (
-            <p className="auth-error" role="alert">
-              {errorMessage}
-            </p>
-          )}
-
           <button type="submit" disabled={isSubmitting}>
-            {isSubmitting ? 'Signing in…' : 'Sign in'}
+            {isSubmitting ? "Signing in…" : "Sign in"}
           </button>
         </form>
 
-      {isDevelopment && (
-  <p className="auth-hint">
-    Fresh databases bootstrap demo accounts:
-    {' '}
-    <code>superadmin@techlearninghub.local</code> /
-    {' '}
-    <code>SuperAdmin123!</code>,
-    {' '}
-    <code>developer@techlearninghub.local</code> /
-    {' '}
-    <code>Developer123!</code>,
-    {' '}
-    <code>hr@techlearninghub.local</code> /
-    {' '}
-    <code>HrUser123!</code>.
-  </p>
-)}
+        <div className="mt-6 text-center text-sm text-gray-500">
+          Don't have an account?{" "}
+          <button
+            type="button"
+            onClick={onSignup}
+            disabled={isSubmitting}
+            className="font-medium text-gray-900 hover:underline disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            Sign up
+          </button>
+        </div>
+
+        {isDevelopment && (
+          <p className="auth-hint">
+            Fresh databases bootstrap demo accounts:{" "}
+            <code>superadmin@techlearninghub.local</code> /{" "}
+            <code>SuperAdmin123!</code>
+            {", "}
+            <code>developer@techlearninghub.local</code> /{" "}
+            <code>Developer123!</code>
+            {", "}
+            <code>hr@techlearninghub.local</code> / <code>HrUser123!</code>.
+          </p>
+        )}
       </section>
     </main>
   );
 }
-
-export default LoginScreen;

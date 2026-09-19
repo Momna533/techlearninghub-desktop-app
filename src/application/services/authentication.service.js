@@ -1,10 +1,13 @@
-const { PERMISSIONS } = require('../../domain/authorization/permission-codes');
-const {
-  requirePermission,
-} = require('./authorization.service');
+const { PERMISSIONS } = require("../../domain/authorization/permission-codes");
+const { requirePermission } = require("./authorization.service");
 
-const bcrypt = require('bcryptjs');
-const { getDatabase } = require('../../infrastructure/database/connection');
+const bcrypt = require("bcryptjs");
+const { getDatabase } = require("../../infrastructure/database/connection");
+
+const {
+  getRoleByCode,
+  assignRole,
+} = require("../../infrastructure/database/repositories/rbac.repository");
 
 function sanitizeUser(user) {
   if (!user) return null;
@@ -24,7 +27,8 @@ function findUserByEmail(email) {
   const database = getDatabase();
 
   return database
-    .prepare(`
+    .prepare(
+      `
       SELECT
         id,
         email,
@@ -39,80 +43,81 @@ function findUserByEmail(email) {
       WHERE email = ?
       COLLATE NOCASE
       LIMIT 1
-    `)
+    `,
+    )
     .get(email.trim());
 }
 
 async function authenticateUser({ email, password }) {
-  if (typeof email !== 'string' || !email.trim()) {
+  if (typeof email !== "string" || !email.trim()) {
     return {
       success: false,
-      code: 'INVALID_INPUT',
-      message: 'Email is required.',
+      code: "INVALID_INPUT",
+      message: "Email is required.",
     };
   }
 
-  if (typeof password !== 'string' || !password) {
+  if (typeof password !== "string" || !password) {
     return {
       success: false,
-      code: 'INVALID_INPUT',
-      message: 'Password is required.',
+      code: "INVALID_INPUT",
+      message: "Password is required.",
     };
   }
 
-const user = findUserByEmail(email);
+  const user = findUserByEmail(email);
 
-console.log('LOGIN DEBUG:', {
-  enteredEmail: email.trim(),
-  userFound: Boolean(user),
-  userId: user?.id,
-  storedEmail: user?.email,
-  hasPasswordHash: Boolean(user?.password_hash),
-});
+  console.log("LOGIN DEBUG:", {
+    enteredEmail: email.trim(),
+    userFound: Boolean(user),
+    userId: user?.id,
+    storedEmail: user?.email,
+    hasPasswordHash: Boolean(user?.password_hash),
+  });
 
-if (!user) {
-  return {
-    success: false,
-    code: 'INVALID_CREDENTIALS',
-    message: 'Invalid email or password.',
-  };
-}
-
-  if (user.status !== 'active') {
+  if (!user) {
     return {
       success: false,
-      code: 'ACCOUNT_DISABLED',
-      message: 'This account is disabled.',
+      code: "INVALID_CREDENTIALS",
+      message: "Invalid email or password.",
     };
   }
 
-  const passwordMatches = await bcrypt.compare(
-    password,
-    user.password_hash,
-  );
+  if (user.status !== "active") {
+    return {
+      success: false,
+      code: "ACCOUNT_DISABLED",
+      message: "This account is disabled.",
+    };
+  }
+
+  const passwordMatches = await bcrypt.compare(password, user.password_hash);
 
   if (!passwordMatches) {
     return {
       success: false,
-      code: 'INVALID_CREDENTIALS',
-      message: 'Invalid email or password.',
+      code: "INVALID_CREDENTIALS",
+      message: "Invalid email or password.",
     };
   }
 
   const database = getDatabase();
 
   database
-    .prepare(`
+    .prepare(
+      `
       UPDATE users
       SET
         last_login_at = CURRENT_TIMESTAMP,
         updated_at = CURRENT_TIMESTAMP
       WHERE id = ?
-    `)
+    `,
+    )
     .run(user.id);
 
   const updatedUser = database
-    .prepare(`
+    .prepare(
+      `
       SELECT
         id,
         email,
@@ -126,7 +131,8 @@ if (!user) {
       FROM users
       WHERE id = ?
       LIMIT 1
-    `)
+    `,
+    )
     .get(user.id);
 
   return {
@@ -139,22 +145,22 @@ async function createUser({
   email,
   password,
   displayName = null,
-  // Bootstrap creates the first accounts before any session exists.
   skipAuthorizationCheck = false,
 }) {
   if (!skipAuthorizationCheck) {
     const denial = requirePermission(PERMISSIONS.USERS_MANAGE);
+
     if (denial) {
       return denial;
     }
   }
 
-  if (typeof email !== 'string' || !email.trim()) {
-    throw new Error('Email is required.');
+  if (typeof email !== "string" || !email.trim()) {
+    throw new Error("Email is required.");
   }
 
-  if (typeof password !== 'string' || password.length < 8) {
-    throw new Error('Password must contain at least 8 characters.');
+  if (typeof password !== "string" || password.length < 8) {
+    throw new Error("Password must contain at least 8 characters.");
   }
 
   const normalizedEmail = email.trim().toLowerCase();
@@ -162,23 +168,26 @@ async function createUser({
   const database = getDatabase();
 
   const existingUser = database
-    .prepare(`
+    .prepare(
+      `
       SELECT id
       FROM users
       WHERE email = ?
       COLLATE NOCASE
       LIMIT 1
-    `)
+    `,
+    )
     .get(normalizedEmail);
 
   if (existingUser) {
-    throw new Error('A user with this email already exists.');
+    throw new Error("A user with this email already exists.");
   }
 
   const passwordHash = await bcrypt.hash(password, 12);
 
   const result = database
-    .prepare(`
+    .prepare(
+      `
       INSERT INTO users (
         email,
         password_hash,
@@ -186,12 +195,9 @@ async function createUser({
         status
       )
       VALUES (?, ?, ?, 'active')
-    `)
-    .run(
-      normalizedEmail,
-      passwordHash,
-      displayName,
-    );
+    `,
+    )
+    .run(normalizedEmail, passwordHash, displayName);
 
   return {
     id: Number(result.lastInsertRowid),
@@ -200,7 +206,87 @@ async function createUser({
   };
 }
 
+async function registerUser({ firstName, lastName, email, password }) {
+  const normalizedFirstName = firstName?.trim();
+  const normalizedLastName = lastName?.trim();
+  const normalizedEmail = email?.trim().toLowerCase();
+
+  if (!normalizedFirstName) {
+    return {
+      success: false,
+      message: "First name is required.",
+    };
+  }
+
+  if (!normalizedLastName) {
+    return {
+      success: false,
+      message: "Last name is required.",
+    };
+  }
+
+  if (!normalizedEmail) {
+    return {
+      success: false,
+      message: "Email is required.",
+    };
+  }
+
+  if (!password) {
+    return {
+      success: false,
+      message: "Password is required.",
+    };
+  }
+
+  if (password.length < 8) {
+    return {
+      success: false,
+      message: "Password must be at least 8 characters.",
+    };
+  }
+
+  const existingUser = findUserByEmail(normalizedEmail);
+
+  if (existingUser) {
+    return {
+      success: false,
+      message: "An account with this email already exists.",
+    };
+  }
+
+  const displayName = `${normalizedFirstName} ${normalizedLastName}`.trim();
+
+  const user = await createUser({
+    email: normalizedEmail,
+    password,
+    displayName,
+    skipAuthorizationCheck: true,
+  });
+
+  const superAdminRole = getRoleByCode("super_admin");
+
+  if (!superAdminRole) {
+    throw new Error(
+      "Super Admin role is not configured. Please initialize the Super Admin role first.",
+    );
+  }
+
+  assignRole(user.id, superAdminRole.id);
+
+  return {
+    success: true,
+    user: {
+      id: user.id,
+      email: user.email,
+      displayName: user.displayName,
+      status: "active",
+    },
+  };
+}
+
 module.exports = {
   authenticateUser,
   createUser,
+  registerUser,
 };

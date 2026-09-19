@@ -61,22 +61,7 @@ const ROLE_DEFINITIONS = Object.freeze([
     description:
       "Operational administrator without exclusive super-admin-only expansion later.",
     isSystemRole: true,
-    permissions: [
-      PERMISSIONS.USERS_VIEW,
-      PERMISSIONS.USERS_MANAGE,
-      PERMISSIONS.SETTINGS_MANAGE,
-      PERMISSIONS.DASHBOARD_VIEW,
-      ...ACADEMY_VIEW_PERMISSIONS,
-      ...ACADEMY_MANAGE_PERMISSIONS,
-      ...SOFTWARE_VIEW_PERMISSIONS,
-      ...FINANCE_VIEW_PERMISSIONS,
-      PERMISSIONS.PEOPLE_EMPLOYEES_VIEW,
-      PERMISSIONS.REPORTS_VIEW,
-      PERMISSIONS.DOCUMENTS_VIEW,
-      PERMISSIONS.DEMO_ADMIN_ACTION,
-      PERMISSIONS.DEMO_HR_ACTION,
-      PERMISSIONS.DEMO_FINANCE_ACTION,
-    ],
+    permissions: [...ALL_PERMISSION_CODES],
   },
   {
     code: ROLES.TRAINER,

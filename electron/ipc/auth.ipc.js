@@ -1,20 +1,21 @@
 const {
   authenticateUser,
-} = require('../../src/application/services/authentication.service');
+  registerUser,
+} = require("../../src/application/services/authentication.service");
 
 const {
   setCurrentUser,
   getCurrentUser,
   isAuthenticated,
   clearCurrentUser,
-} = require('../../src/application/services/session.service');
+} = require("../../src/application/services/session.service");
 
 const {
   enrichUserWithAuthorization,
-} = require('../../src/application/services/authorization.service');
+} = require("../../src/application/services/authorization.service");
 
 function registerAuthIpc({ ipcMain }) {
-  ipcMain.handle('auth:login', async (_event, credentials) => {
+  ipcMain.handle("auth:login", async (_event, credentials) => {
     const result = await authenticateUser(credentials);
 
     if (!result.success) {
@@ -30,7 +31,11 @@ function registerAuthIpc({ ipcMain }) {
     };
   });
 
-  ipcMain.handle('auth:get-session', () => {
+  ipcMain.handle("auth:signup", async (_event, data) => {
+    return registerUser(data);
+  });
+
+  ipcMain.handle("auth:get-session", () => {
     if (!isAuthenticated()) {
       return {
         authenticated: false,
@@ -38,7 +43,6 @@ function registerAuthIpc({ ipcMain }) {
       };
     }
 
-    // Refresh roles/permissions from DB so assignment changes apply mid-session.
     const authorizedUser = enrichUserWithAuthorization(getCurrentUser());
     setCurrentUser(authorizedUser);
 
@@ -48,7 +52,7 @@ function registerAuthIpc({ ipcMain }) {
     };
   });
 
-  ipcMain.handle('auth:logout', () => {
+  ipcMain.handle("auth:logout", () => {
     clearCurrentUser();
 
     return {
