@@ -54,4 +54,17 @@ contextBridge.exposeInMainWorld("desktop", {
 
     deactivate: (id) => ipcRenderer.invoke("courses:deactivate", id),
   },
+  batches: {
+    list: (filters = {}) => ipcRenderer.invoke("batches:list", filters),
+
+    get: (id) => ipcRenderer.invoke("batches:get", id),
+
+    create: (batch) => ipcRenderer.invoke("batches:create", batch),
+
+    update: (payload) => ipcRenderer.invoke("batches:update", payload),
+
+    courses: () => ipcRenderer.invoke("batches:courses"),
+
+    trainers: () => ipcRenderer.invoke("batches:trainers"),
+  },
 });
