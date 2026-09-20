@@ -14,7 +14,7 @@ import BatchesPage from "../pages/BatchesPage";
 // import CertificatesPage from '../pages/CertificatesPage';
 
 // import LeadsPage from '../pages/LeadsPage';
-// import ClientsPage from '../pages/ClientsPage';
+ import ClientsPage from '../pages/ClientsPage';
 // import ProposalsPage from '../pages/ProposalsPage';
 // import ProjectsPage from '../pages/ProjectsPage';
 // import TasksPage from '../pages/TasksPage';
@@ -48,7 +48,7 @@ const PAGE_COMPONENTS = {
   // CertificatesPage,
 
   // LeadsPage,
-  // ClientsPage,
+   ClientsPage,
   // ProposalsPage,
   // ProjectsPage,
   // TasksPage,

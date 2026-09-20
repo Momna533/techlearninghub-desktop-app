@@ -88,4 +88,17 @@ contextBridge.exposeInMainWorld("desktop", {
   admissions: {
     create: (admission) => ipcRenderer.invoke("admissions:create", admission),
   },
+  clients: {
+  list: (filters = {}) => ipcRenderer.invoke("clients:list", filters),
+
+  get: (id) => ipcRenderer.invoke("clients:get", id),
+
+  create: (client) => ipcRenderer.invoke("clients:create", client),
+
+  update: (payload) => ipcRenderer.invoke("clients:update", payload),
+
+  deactivate: (id) => ipcRenderer.invoke("clients:deactivate", id),
+
+  archive: (id) => ipcRenderer.invoke("clients:archive", id),
+},
 });

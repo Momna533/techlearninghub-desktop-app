@@ -19,6 +19,7 @@ const { registerCoursesIpc } = require("./ipc/courses.ipc");
 const { registerBatchesIpc } = require("./ipc/batch.ipc");
 const { registerEnrollmentsIpc } = require("./ipc/enrollments.ipc");
 const { registerAdmissionIpc } = require("./ipc/admission.ipc");
+const { registerClientIpc } = require("./ipc/client.ipc");
 
 const { runShellSmoke } = require("./smoke-shell");
 
@@ -85,6 +86,7 @@ app.whenReady().then(async () => {
   registerBatchesIpc({ ipcMain });
   registerEnrollmentsIpc({ ipcMain });
   registerAdmissionIpc({ ipcMain });
+  registerClientIpc({ ipcMain });
 
   createMainWindow();
 
