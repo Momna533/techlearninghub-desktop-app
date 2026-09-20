@@ -3,6 +3,7 @@ import { HashRouter } from "react-router-dom";
 import LoginScreen from "./LoginScreen";
 import SignupScreen from "./SignupScreen";
 import AppRoutes from "./routing/AppRoutes";
+import StartupLoader from "./components/StartupLoader";
 
 function App() {
   const [showSignup, setShowSignup] = useState(false);
@@ -17,7 +18,9 @@ function App() {
 
     async function restoreSession() {
       try {
-        const session = await window.desktop.auth.getSession();
+       const [session] = await Promise.all([
+      window.desktop.auth.getSession(),
+      new Promise((resolve) => setTimeout(resolve, 1500))])
 
         if (!isMounted) return;
 
@@ -75,13 +78,9 @@ function App() {
     }
   }
 
-  if (authState.status === "checking") {
-    return (
-      <main className="auth-loading">
-        <p>Checking authentication…</p>
-      </main>
-    );
-  }
+ if (authState.status === "checking") {
+  return <StartupLoader />;
+}
 
   if (authState.status === "unauthenticated") {
     if (showSignup) {
