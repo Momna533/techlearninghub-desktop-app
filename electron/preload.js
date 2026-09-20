@@ -101,4 +101,40 @@ contextBridge.exposeInMainWorld("desktop", {
 
   archive: (id) => ipcRenderer.invoke("clients:archive", id),
 },
+teams: {
+  list: (filters = {}) => ipcRenderer.invoke("teams:list", filters),
+
+  get: (id) => ipcRenderer.invoke("teams:get", id),
+
+  create: (team) => ipcRenderer.invoke("teams:create", team),
+
+  update: (payload) => ipcRenderer.invoke("teams:update", payload),
+
+  deactivate: (id) => ipcRenderer.invoke("teams:deactivate", id),
+
+  archive: (id) => ipcRenderer.invoke("teams:archive", id),
+},
+employees: {
+  list: (filters = {}) => ipcRenderer.invoke("employees:list", filters),
+  get: (id) => ipcRenderer.invoke("employees:get", id),
+  create: (employee) => ipcRenderer.invoke("employees:create", employee),
+  update: (payload) => ipcRenderer.invoke("employees:update", payload),
+  deactivate: (id) => ipcRenderer.invoke("employees:deactivate", id),
+},
+teamMembers: {
+  list: (filters = {}) =>
+    ipcRenderer.invoke("team-members:list", filters),
+
+  get: (id) =>
+    ipcRenderer.invoke("team-members:get", id),
+
+  create: (member) =>
+    ipcRenderer.invoke("team-members:create", member),
+
+  update: (payload) =>
+    ipcRenderer.invoke("team-members:update", payload),
+
+  remove: (id) =>
+    ipcRenderer.invoke("team-members:remove", id),
+},
 });

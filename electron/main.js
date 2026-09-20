@@ -20,6 +20,9 @@ const { registerBatchesIpc } = require("./ipc/batch.ipc");
 const { registerEnrollmentsIpc } = require("./ipc/enrollments.ipc");
 const { registerAdmissionIpc } = require("./ipc/admission.ipc");
 const { registerClientIpc } = require("./ipc/client.ipc");
+const { registerTeamIpc } = require("./ipc/team.ipc");
+const { registerEmployeeIpc } = require("./ipc/employee.ipc");
+const { registerTeamMemberIpc } = require("./ipc/team-member.ipc");
 
 const { runShellSmoke } = require("./smoke-shell");
 
@@ -87,6 +90,9 @@ app.whenReady().then(async () => {
   registerEnrollmentsIpc({ ipcMain });
   registerAdmissionIpc({ ipcMain });
   registerClientIpc({ ipcMain });
+  registerTeamIpc({ ipcMain });
+  registerEmployeeIpc({ ipcMain });
+  registerTeamMemberIpc({ ipcMain });
 
   createMainWindow();
 

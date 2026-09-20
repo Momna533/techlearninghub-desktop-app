@@ -115,6 +115,14 @@ export const NAV_SECTIONS = Object.freeze([
         permission: PERMISSIONS.SOFTWARE_TEAMS_VIEW,
         icon: 'UserCog',
       },
+       {
+        id: 'team-members',
+        label: 'Team Members',
+        path: '/software/team-members',
+        page: 'TeamMembersPage',
+        permission: PERMISSIONS.SOFTWARE_TEAMS_VIEW,
+        icon: 'UserCog',
+      },
       {
         id: 'support',
         label: 'Support',

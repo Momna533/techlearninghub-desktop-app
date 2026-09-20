@@ -18,7 +18,8 @@ import BatchesPage from "../pages/BatchesPage";
 // import ProposalsPage from '../pages/ProposalsPage';
 // import ProjectsPage from '../pages/ProjectsPage';
 // import TasksPage from '../pages/TasksPage';
-// import TeamsPage from '../pages/TeamsPage';
+ import TeamsPage from '../pages/TeamsPage';
+ import TeamMembersPage from '../pages/TeamMembersPage';
 // import SupportPage from '../pages/SupportPage';
 
 // import InvoicesPage from '../pages/InvoicesPage';
@@ -26,7 +27,7 @@ import BatchesPage from "../pages/BatchesPage";
 // import ExpensesPage from '../pages/ExpensesPage';
 // import PayrollPage from '../pages/PayrollPage';
 
-// import EmployeesPage from '../pages/EmployeesPage';
+ import EmployeesPage from '../pages/EmployeesPage';
 // import UsersPage from '../pages/UsersPage';
 // import RolesPage from '../pages/RolesPage';
 
@@ -52,7 +53,8 @@ const PAGE_COMPONENTS = {
   // ProposalsPage,
   // ProjectsPage,
   // TasksPage,
-  // TeamsPage,
+   TeamsPage,
+   TeamMembersPage,
   // SupportPage,
 
   // InvoicesPage,
@@ -60,7 +62,7 @@ const PAGE_COMPONENTS = {
   // ExpensesPage,
   // PayrollPage,
 
-  // EmployeesPage,
+   EmployeesPage,
   // UsersPage,
   // RolesPage,
 
