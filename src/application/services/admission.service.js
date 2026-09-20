@@ -111,14 +111,22 @@ function normalizeAdmission(admission) {
       notes: admission.notes?.trim() || null,
     },
 
-    enrollment: {
-      batchId:
-        admission.batchId === null ||
-        admission.batchId === undefined ||
-        admission.batchId === ""
-          ? null
-          : Number(admission.batchId),
-      enrolledAt: admission.enrolledAt,
+   enrollment: {
+  courseId:
+    admission.courseId === null ||
+    admission.courseId === undefined ||
+    admission.courseId === ""
+      ? null
+      : Number(admission.courseId),
+
+  batchId:
+    admission.batchId === null ||
+    admission.batchId === undefined ||
+    admission.batchId === ""
+      ? null
+      : Number(admission.batchId),
+
+  enrolledAt: admission.enrolledAt,
       status: admission.enrollmentStatus || "active",
       agreedFeeMinor: Number(admission.agreedFeeMinor),
       discountMinor,
@@ -225,8 +233,9 @@ function insertEnrollment(database, studentId, enrollment) {
       `
             INSERT INTO enrollments (
                 student_id,
-                batch_id,
-                enrolled_at,
+  course_id,
+  batch_id,
+  enrolled_at,
                 status,
                 agreed_fee_minor,
                 discount_minor,
@@ -234,9 +243,10 @@ function insertEnrollment(database, studentId, enrollment) {
                 notes
             )
             VALUES (
-                @studentId,
-                @batchId,
-                @enrolledAt,
+               @studentId,
+  @courseId,
+  @batchId,
+  @enrolledAt,
                 @status,
                 @agreedFeeMinor,
                 @discountMinor,
@@ -247,8 +257,9 @@ function insertEnrollment(database, studentId, enrollment) {
     )
     .run({
       studentId,
-      batchId: enrollment.batchId,
-      enrolledAt: enrollment.enrolledAt,
+  courseId: enrollment.courseId,
+  batchId: enrollment.batchId,
+  enrolledAt: enrollment.enrolledAt,
       status: enrollment.status,
       agreedFeeMinor: enrollment.agreedFeeMinor,
       discountMinor: enrollment.discountMinor,
