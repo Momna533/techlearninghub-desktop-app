@@ -27,9 +27,9 @@ function validateStudent(student) {
     errors.lastName = "Last name is required.";
   }
 
-  if (!student.guardianName?.trim()) {
-    errors.guardianName = "Guardian/father name is required.";
-  }
+  // if (!student.guardianName?.trim()) {
+  //   errors.guardianName = "Guardian/father name is required.";
+  // }
 
   if (!student.phone?.trim()) {
     errors.phone = "Phone number is required.";
@@ -133,9 +133,7 @@ export function updateStudent(id, student) {
 
   if (duplicate && duplicate.id !== id) {
     const error = new Error("Student ID already exists.");
-
     error.code = "DUPLICATE_STUDENT_ID";
-
     throw error;
   }
 
@@ -153,41 +151,46 @@ export function updateStudent(id, student) {
     notes: student.notes?.trim() || null,
   });
 
+  let updatedEnrollment = null;
+
   if (existingEnrollment) {
-    console.log("[student:update] existing enrollment:", existingEnrollment);
-    updateEnrollment(existingEnrollment.id, {
+    updatedEnrollment = updateEnrollment(existingEnrollment.id, {
       courseId: Number(student.courseId),
+
       batchId:
         student.batchId === null ||
         student.batchId === undefined ||
         student.batchId === ""
           ? null
           : Number(student.batchId),
+
       enrolledAt: student.enrolledAt,
+
       withdrawnAt:
         student.enrollmentStatus === "withdrawn"
           ? existingEnrollment.withdrawnAt
           : null,
+
       status: student.enrollmentStatus || existingEnrollment.status,
+
       agreedFeeMinor: Number(student.agreedFeeMinor),
+
       discountMinor: Number(student.discountMinor),
-      currencyCode: student.currencyCode?.trim().toUpperCase() || "PKR",
+
+      registrationFeeMinor: Number(student.registrationFeeMinor),
+
+      currencyCode:
+        student.currencyCode?.trim().toUpperCase() || "PKR",
+
       notes: student.enrollmentNotes?.trim() || null,
     });
   }
 
-  console.log("[student:update] admission data:", {
-    courseId: student.courseId,
-    batchId: student.batchId,
-    enrolledAt: student.enrolledAt,
-    agreedFeeMinor: student.agreedFeeMinor,
-    discountMinor: student.discountMinor,
-    enrollmentStatus: student.enrollmentStatus,
-    currencyCode: student.currencyCode,
-    enrollmentNotes: student.enrollmentNotes,
-  });
+  return {
+    student: updatedStudent,
+    enrollment: updatedEnrollment,
+  };
 }
-
 export function deactivateStudent(id) {
   const student = findStudentById(id);
 

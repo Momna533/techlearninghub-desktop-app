@@ -137,4 +137,17 @@ teamMembers: {
   remove: (id) =>
     ipcRenderer.invoke("team-members:remove", id),
 },
+  studentPayments: {
+    create: (payment) =>
+      ipcRenderer.invoke("student-payments:create", payment),
+
+    list: (enrollmentId) =>
+      ipcRenderer.invoke("student-payments:list", enrollmentId),
+
+    summary: (enrollmentId) =>
+      ipcRenderer.invoke("student-payments:summary", enrollmentId),
+
+    get: (id) =>
+      ipcRenderer.invoke("student-payments:get", id),
+  },
 });

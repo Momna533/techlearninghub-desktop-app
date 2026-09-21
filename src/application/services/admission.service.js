@@ -15,6 +15,12 @@ import { transaction } from "../../infrastructure/database/connection.js";
 function generateStudentCode() {
   return `STU-${Date.now().toString(36).toUpperCase()}`;
 }
+function generateReceiptNumber() {
+  return `REC-${Date.now().toString(36).toUpperCase()}-${Math.random()
+    .toString(36)
+    .slice(2, 8)
+    .toUpperCase()}`;
+}
 
 function validateAdmission(admission) {
   const errors = {};
@@ -27,9 +33,9 @@ function validateAdmission(admission) {
     errors.lastName = "Last name is required.";
   }
 
-  if (!admission.guardianName?.trim()) {
-    errors.guardianName = "Guardian/father name is required.";
-  }
+  // if (!admission.guardianName?.trim()) {
+  //   errors.guardianName = "Guardian/father name is required.";
+  // }
 
   if (!admission.phone?.trim()) {
     errors.phone = "Phone number is required.";
@@ -83,6 +89,76 @@ function validateAdmission(admission) {
     }
   }
 
+
+    if (
+    admission.registrationFeeMinor === null ||
+    admission.registrationFeeMinor === undefined ||
+    admission.registrationFeeMinor === ""
+  ) {
+    errors.registrationFeeMinor = "Registration fee is required.";
+  } else if (
+    !Number.isInteger(Number(admission.registrationFeeMinor)) ||
+    Number(admission.registrationFeeMinor) <= 0
+  ) {
+    errors.registrationFeeMinor =
+      "Registration fee must be greater than zero.";
+  }
+
+  if (
+    admission.registrationPaymentMinor === null ||
+    admission.registrationPaymentMinor === undefined ||
+    admission.registrationPaymentMinor === ""
+  ) {
+    errors.registrationPaymentMinor =
+      "Registration payment is required.";
+  } else if (
+    Number(admission.registrationPaymentMinor) !==
+    Number(admission.registrationFeeMinor)
+  ) {
+    errors.registrationPaymentMinor =
+      "Registration fee must be fully paid at admission.";
+  }
+
+  if (!admission.registrationPaymentMethod) {
+    errors.registrationPaymentMethod =
+      "Registration payment method is required.";
+  }
+
+  if (
+    admission.coursePaymentMinor !== null &&
+    admission.coursePaymentMinor !== undefined &&
+    admission.coursePaymentMinor !== ""
+  ) {
+    if (
+      !Number.isInteger(Number(admission.coursePaymentMinor)) ||
+      Number(admission.coursePaymentMinor) < 0
+    ) {
+      errors.coursePaymentMinor =
+        "Initial course payment must be zero or greater.";
+    }
+
+    const courseTotal =
+      Number(admission.agreedFeeMinor) -
+      Number(admission.discountMinor || 0);
+
+    if (Number(admission.coursePaymentMinor) > courseTotal) {
+      errors.coursePaymentMinor =
+        "Initial course payment cannot exceed the course fee.";
+    }
+  }
+
+  if (
+    admission.coursePaymentMinor !== null &&
+    admission.coursePaymentMinor !== undefined &&
+    admission.coursePaymentMinor !== "" &&
+    Number(admission.coursePaymentMinor) > 0 &&
+    !admission.coursePaymentMethod
+  ) {
+    errors.coursePaymentMethod =
+      "Course payment method is required.";
+  }
+
+
   return errors;
 }
 
@@ -96,44 +172,69 @@ function normalizeAdmission(admission) {
       ? 0
       : Number(admission.discountMinor);
 
-  return {
-    student: {
-      studentCode,
-      firstName: admission.firstName.trim(),
-      lastName: admission.lastName.trim(),
-      guardianName: admission.guardianName.trim(),
-      guardianPhone: admission.guardianPhone?.trim() || null,
-      phone: admission.phone.trim(),
-      email: admission.email?.trim() || null,
-      address: admission.address?.trim() || null,
-      dateOfBirth: admission.dateOfBirth || null,
-      status: admission.status || "active",
-      notes: admission.notes?.trim() || null,
-    },
+ return {
+  student: {
+    studentCode,
+    firstName: admission.firstName.trim(),
+    lastName: admission.lastName.trim(),
+    guardianName: admission.guardianName.trim(),
+    guardianPhone: admission.guardianPhone?.trim() || null,
+    phone: admission.phone.trim(),
+    email: admission.email?.trim() || null,
+    address: admission.address?.trim() || null,
+    dateOfBirth: admission.dateOfBirth || null,
+    status: admission.status || "active",
+    notes: admission.notes?.trim() || null,
+  },
 
-   enrollment: {
-  courseId:
-    admission.courseId === null ||
-    admission.courseId === undefined ||
-    admission.courseId === ""
-      ? null
-      : Number(admission.courseId),
+  enrollment: {
+    courseId:
+      admission.courseId === null ||
+      admission.courseId === undefined ||
+      admission.courseId === ""
+        ? null
+        : Number(admission.courseId),
 
-  batchId:
-    admission.batchId === null ||
-    admission.batchId === undefined ||
-    admission.batchId === ""
-      ? null
-      : Number(admission.batchId),
+    batchId:
+      admission.batchId === null ||
+      admission.batchId === undefined ||
+      admission.batchId === ""
+        ? null
+        : Number(admission.batchId),
 
-  enrolledAt: admission.enrolledAt,
-      status: admission.enrollmentStatus || "active",
-      agreedFeeMinor: Number(admission.agreedFeeMinor),
-      discountMinor,
-      currencyCode: admission.currencyCode?.trim().toUpperCase() || "PKR",
-      notes: admission.enrollmentNotes?.trim() || null,
-    },
-  };
+    enrolledAt: admission.enrolledAt,
+
+    status: admission.enrollmentStatus || "active",
+
+    agreedFeeMinor: Number(admission.agreedFeeMinor),
+
+    discountMinor,
+
+    registrationFeeMinor: Number(admission.registrationFeeMinor),
+
+    registrationPaymentMinor: Number(
+      admission.registrationPaymentMinor,
+    ),
+
+    registrationPaymentMethod:
+      admission.registrationPaymentMethod,
+
+    coursePaymentMinor:
+      admission.coursePaymentMinor === "" ||
+      admission.coursePaymentMinor === null ||
+      admission.coursePaymentMinor === undefined
+        ? 0
+        : Number(admission.coursePaymentMinor),
+
+    coursePaymentMethod:
+      admission.coursePaymentMethod || null,
+
+    currencyCode:
+      admission.currencyCode?.trim().toUpperCase() || "PKR",
+
+    notes: admission.enrollmentNotes?.trim() || null,
+  },
+};
 }
 
 function validateBatch(batchId) {
@@ -239,6 +340,7 @@ function insertEnrollment(database, studentId, enrollment) {
                 status,
                 agreed_fee_minor,
                 discount_minor,
+                registration_fee_minor,
                 currency_code,
                 notes
             )
@@ -250,6 +352,7 @@ function insertEnrollment(database, studentId, enrollment) {
                 @status,
                 @agreedFeeMinor,
                 @discountMinor,
+                @registrationFeeMinor,
                 @currencyCode,
                 @notes
             )
@@ -263,6 +366,7 @@ function insertEnrollment(database, studentId, enrollment) {
       status: enrollment.status,
       agreedFeeMinor: enrollment.agreedFeeMinor,
       discountMinor: enrollment.discountMinor,
+      registrationFeeMinor: enrollment.registrationFeeMinor,
       currencyCode: enrollment.currencyCode,
       notes: enrollment.notes,
     });
@@ -316,6 +420,76 @@ export function createAdmission(admission) {
       normalized.enrollment,
     );
 
+        database
+      .prepare(
+        `
+        INSERT INTO student_payments (
+          enrollment_id,
+          receipt_number,
+          fee_type,
+          amount_minor,
+          currency_code,
+          payment_method,
+          paid_at,
+          notes
+        )
+        VALUES (
+          @enrollmentId,
+          @receiptNumber,
+          'registration',
+          @amountMinor,
+          @currencyCode,
+          @paymentMethod,
+          @paidAt,
+          @notes
+        )
+        `,
+      )
+      .run({
+        enrollmentId,
+        receiptNumber: generateReceiptNumber(),
+        amountMinor: normalized.enrollment.registrationPaymentMinor,
+        currencyCode: normalized.enrollment.currencyCode,
+        paymentMethod: normalized.enrollment.registrationPaymentMethod,
+        paidAt: normalized.enrollment.enrolledAt,
+        notes: "Registration fee payment",
+      });
+    if (normalized.enrollment.coursePaymentMinor > 0) {
+      database
+        .prepare(
+          `
+          INSERT INTO student_payments (
+            enrollment_id,
+            receipt_number,
+            fee_type,
+            amount_minor,
+            currency_code,
+            payment_method,
+            paid_at,
+            notes
+          )
+          VALUES (
+            @enrollmentId,
+            @receiptNumber,
+            'course',
+            @amountMinor,
+            @currencyCode,
+            @paymentMethod,
+            @paidAt,
+            @notes
+          )
+          `,
+        )
+        .run({
+          enrollmentId,
+          receiptNumber: generateReceiptNumber(),
+          amountMinor: normalized.enrollment.coursePaymentMinor,
+          currencyCode: normalized.enrollment.currencyCode,
+          paymentMethod: normalized.enrollment.coursePaymentMethod,
+          paidAt: normalized.enrollment.enrolledAt,
+          notes: "Initial course fee payment",
+        });
+    }
     const student = database
       .prepare(
         `
@@ -353,6 +527,7 @@ export function createAdmission(admission) {
                         en.status,
                         en.agreed_fee_minor,
                         en.discount_minor,
+                        en.registration_fee_minor,
                         en.currency_code,
                         en.notes,
                         en.created_at,

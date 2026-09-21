@@ -27,6 +27,7 @@ function mapEnrollment(row) {
     status: row.status,
 
     agreedFeeMinor: row.agreed_fee_minor,
+    registrationFeeMinor: row.registration_fee_minor,
     discountMinor: row.discount_minor,
     currencyCode: row.currency_code,
 
@@ -61,6 +62,7 @@ const ENROLLMENT_SELECT = `
     en.status,
     en.agreed_fee_minor,
     en.discount_minor,
+    en.registration_fee_minor,
     en.currency_code,
     en.notes,
     en.created_at,
@@ -241,6 +243,7 @@ function createEnrollment(enrollment) {
         status,
         agreed_fee_minor,
         discount_minor,
+         registration_fee_minor,
         currency_code,
         notes
       )
@@ -251,6 +254,7 @@ function createEnrollment(enrollment) {
         @status,
         @agreedFeeMinor,
         @discountMinor,
+         @registrationFeeMinor,
         @currencyCode,
         @notes
       )
@@ -263,6 +267,7 @@ function createEnrollment(enrollment) {
       status: enrollment.status,
       agreedFeeMinor: enrollment.agreedFeeMinor,
       discountMinor: enrollment.discountMinor,
+      registrationFeeMinor: enrollment.registrationFeeMinor,
       currencyCode: enrollment.currencyCode,
       notes: enrollment.notes,
     });
@@ -285,6 +290,7 @@ function updateEnrollment(id, enrollment) {
         status = @status,
         agreed_fee_minor = @agreedFeeMinor,
         discount_minor = @discountMinor,
+        registration_fee_minor = @registrationFeeMinor,
         currency_code = @currencyCode,
         notes = @notes,
         updated_at = CURRENT_TIMESTAMP
@@ -300,6 +306,7 @@ function updateEnrollment(id, enrollment) {
       status: enrollment.status,
       agreedFeeMinor: enrollment.agreedFeeMinor,
       discountMinor: enrollment.discountMinor,
+      registrationFeeMinor: enrollment.registrationFeeMinor,
       currencyCode: enrollment.currencyCode,
       notes: enrollment.notes,
     });
