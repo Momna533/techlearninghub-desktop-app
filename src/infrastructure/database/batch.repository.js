@@ -307,6 +307,7 @@ function updateBatch(id, batch) {
   return findBatchById(id);
 }
 
+
 function findActiveCourses() {
   const database = getDatabase();
 
@@ -317,6 +318,8 @@ function findActiveCourses() {
           id,
           course_code,
           name,
+          default_fee_minor,
+          currency_code,
           status
         FROM courses
         WHERE status = 'active'
@@ -328,6 +331,8 @@ function findActiveCourses() {
       id: row.id,
       courseCode: row.course_code,
       name: row.name,
+      defaultFeeMinor: row.default_fee_minor,
+      currencyCode: row.currency_code,
       status: row.status,
     }));
 }

@@ -232,6 +232,7 @@ useEffect(() => {
           return;
         }
 
+        console.log("[StudentForm] Courses loaded:", result.courses);
         setCourses(result.courses || []);
       } catch (error) {
         if (cancelled) return;
@@ -321,27 +322,35 @@ useEffect(() => {
 
     setServerError("");
   }
+function handleCourseChange(event) {
+  const { value } = event.target;
 
-  function handleCourseChange(event) {
-    const { value } = event.target;
+  const selectedCourse = courses.find(
+    (course) => String(course.id) === String(value),
+  );
 
-    setForm((current) => ({
-      ...current,
-      courseId: value,
-      batchId: "",
-      agreedFee: "",
-    }));
+  setForm((current) => ({
+    ...current,
+    courseId: value,
+    batchId: "",
+    agreedFee:
+      selectedCourse?.defaultFeeMinor !== null &&
+      selectedCourse?.defaultFeeMinor !== undefined
+        ? (Number(selectedCourse.defaultFeeMinor) / 100).toString()
+        : "",
+    currencyCode:
+      selectedCourse?.currencyCode || current.currencyCode || "PKR",
+  }));
 
-    setErrors((current) => ({
-      ...current,
-      courseId: "",
-      batchId: "",
-      agreedFee: "",
-    }));
+  setErrors((current) => ({
+    ...current,
+    courseId: "",
+    batchId: "",
+    agreedFee: "",
+  }));
 
-    setServerError("");
-  }
-
+  setServerError("");
+}
   function handleBatchChange(event) {
     const { value } = event.target;
 
@@ -1506,15 +1515,7 @@ return (
                         </p>
                       </div>
 
-                      <div>
-                        <p className="text-xs text-slate-500">
-                          Payment Method
-                        </p>
-
-                        <p className="mt-1 text-sm font-medium capitalize text-slate-900">
-                          {payment.paymentMethod?.replace("_", " ")}
-                        </p>
-                      </div>
+                     
 
                       <div>
                         <p className="text-xs text-slate-500">
