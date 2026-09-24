@@ -1590,9 +1590,13 @@ function StudentForm({
                       </div>
 
                       <div className="mt-3 border-t border-slate-100 pt-3 text-xs text-slate-500">
-                        Paid at:{" "}
+                        Paid at:
                         {payment.paidAt
-                          ? new Date(payment.paidAt).toLocaleString()
+                          ? new Date(payment.paidAt).toLocaleString("en-PK", {
+                              timeZone: "Asia/Karachi",
+                              dateStyle: "medium",
+                              timeStyle: "short",
+                            })
                           : "—"}
                       </div>
                     </div>
