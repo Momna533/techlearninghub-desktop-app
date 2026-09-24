@@ -560,7 +560,407 @@ function StudentsPage() {
       )}
 
       {selectedStudent && (
-       <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-slate-950/50 p-4 backdrop-blur-sm" onMouseDown={(event) => { if (event.target === event.currentTarget) { handleCloseStudent(); } }} > <div role="dialog" aria-modal="true" aria-labelledby="student-view-title" className="max-h-[92vh] w-full max-w-4xl overflow-y-auto rounded-2xl bg-white shadow-2xl" > <div className="flex flex-col gap-4 border-b border-slate-200 px-5 py-5 sm:flex-row sm:items-start sm:justify-between sm:px-6"> <div className="flex items-center gap-4"> <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-slate-100 text-lg font-semibold text-slate-700"> {selectedStudent.first_name?.charAt(0)} {selectedStudent.last_name?.charAt(0)} </div> <div> <div className="flex flex-wrap items-center gap-2"> <h2 id="student-view-title" className="text-lg font-semibold text-slate-900" > {selectedStudent.first_name} {selectedStudent.last_name} </h2> <span className={`inline-flex rounded-full px-2.5 py-1 text-xs font-medium ${getStatusClasses(selectedStudent.status)}`} > {formatStatus(selectedStudent.status)} </span> </div> <p className="mt-1 text-sm text-slate-500"> {selectedStudent.student_code} </p> </div> </div> <button type="button" onClick={handleCloseStudent} className="self-start flex h-9 w-9 items-center justify-center rounded-lg text-xl leading-none text-slate-400 transition hover:bg-slate-100 hover:text-slate-700 focus:outline-none focus:ring-2 focus:ring-slate-200" aria-label="Close" > × </button> </div> <div className="space-y-8 px-5 py-6 sm:px-6"> {/* Student Information */} <section> <div className="mb-4"> <h3 className="text-sm font-semibold text-slate-900"> Student Information </h3> <p className="mt-0.5 text-xs text-slate-500"> Personal and contact information. </p> </div> <div className="grid grid-cols-1 gap-x-8 gap-y-5 sm:grid-cols-2 lg:grid-cols-3"> <div> <p className="text-xs font-medium uppercase tracking-wide text-slate-400"> Guardian </p> <p className="mt-1 text-sm text-slate-900"> {selectedStudent.guardian_name || "-"} </p> </div> <div> <p className="text-xs font-medium uppercase tracking-wide text-slate-400"> Student Phone </p> <p className="mt-1 text-sm text-slate-900"> {selectedStudent.phone || "-"} </p> </div> <div> <p className="text-xs font-medium uppercase tracking-wide text-slate-400"> Guardian Phone </p> <p className="mt-1 text-sm text-slate-900"> {selectedStudent.guardian_phone || "-"} </p> </div> <div> <p className="text-xs font-medium uppercase tracking-wide text-slate-400"> Email </p> <p className="mt-1 break-words text-sm text-slate-900"> {selectedStudent.email || "-"} </p> </div> <div> <p className="text-xs font-medium uppercase tracking-wide text-slate-400"> Date of Birth </p> <p className="mt-1 text-sm text-slate-900"> {formatDate(selectedStudent.date_of_birth)} </p> </div> <div> <p className="text-xs font-medium uppercase tracking-wide text-slate-400"> Registration Date </p> <p className="mt-1 text-sm text-slate-900"> {formatDate(selectedStudent.joined_at)} </p> </div> <div className="sm:col-span-2 lg:col-span-3"> <p className="text-xs font-medium uppercase tracking-wide text-slate-400"> Address </p> <p className="mt-1 text-sm text-slate-900"> {selectedStudent.address || "-"} </p> </div> <div className="sm:col-span-2 lg:col-span-3"> <p className="text-xs font-medium uppercase tracking-wide text-slate-400"> Notes </p> <p className="mt-1 whitespace-pre-wrap text-sm text-slate-900"> {selectedStudent.notes || "-"} </p> </div> </div> </section> {/* Admission Information */} <section className="border-t border-slate-200 pt-7"> <div className="mb-4"> <h3 className="text-sm font-semibold text-slate-900"> Admission Information </h3> <p className="mt-0.5 text-xs text-slate-500"> Course, batch, fees and enrollment details. </p> </div> {selectedStudent.enrollment ? ( <div className="grid grid-cols-1 gap-x-8 gap-y-5 sm:grid-cols-2 lg:grid-cols-3"> <div> <p className="text-xs font-medium uppercase tracking-wide text-slate-400"> Course </p> <p className="mt-1 text-sm font-medium text-slate-900"> {selectedStudent.enrollment.courseName || "-"} </p> {selectedStudent.enrollment.courseCode && ( <p className="mt-0.5 text-xs text-slate-500"> {selectedStudent.enrollment.courseCode} </p> )} </div> <div> <p className="text-xs font-medium uppercase tracking-wide text-slate-400"> Batch </p> <p className="mt-1 text-sm font-medium text-slate-900"> {selectedStudent.enrollment.batchName || "Not assigned"} </p> {selectedStudent.enrollment.batchCode && ( <p className="mt-0.5 text-xs text-slate-500"> {selectedStudent.enrollment.batchCode} </p> )} </div> <div> <p className="text-xs font-medium uppercase tracking-wide text-slate-400"> Trainer </p> <p className="mt-1 text-sm text-slate-900"> {selectedStudent.enrollment.trainerName || "Not assigned"} </p> </div> <div> <p className="text-xs font-medium uppercase tracking-wide text-slate-400"> Admission Date </p> <p className="mt-1 text-sm text-slate-900"> {formatDate(selectedStudent.enrollment.enrolledAt)} </p> </div> <div> <p className="text-xs font-medium uppercase tracking-wide text-slate-400"> Enrollment Status </p> <p className="mt-1"> <span className="inline-flex rounded-full bg-slate-100 px-2.5 py-1 text-xs font-medium capitalize text-slate-700"> {formatStatus(selectedStudent.status) || "-"} </span> </p> </div> <div> <p className="text-xs font-medium uppercase tracking-wide text-slate-400"> Currency </p> <p className="mt-1 text-sm text-slate-900"> {selectedStudent.enrollment.currencyCode || "-"} </p> </div> <div> <p className="text-xs font-medium uppercase tracking-wide text-slate-400"> Agreed Fee </p> <p className="mt-1 text-sm font-medium text-slate-900"> {selectedStudent.enrollment.agreedFeeMinor !== null && selectedStudent.enrollment.agreedFeeMinor !== undefined ? Number( selectedStudent.enrollment.agreedFeeMinor, ) / 100 : "-"} </p> </div> <div> <p className="text-xs font-medium uppercase tracking-wide text-slate-400"> Discount </p> <p className="mt-1 text-sm text-slate-900"> {selectedStudent.enrollment.discountMinor !== null && selectedStudent.enrollment.discountMinor !== undefined ? Number( selectedStudent.enrollment.discountMinor, ) / 100 : "-"} </p> </div> <div> <p className="text-xs font-medium uppercase tracking-wide text-slate-400"> Final Fee </p> <p className="mt-1 text-sm font-semibold text-slate-900"> {selectedStudent.enrollment.agreedFeeMinor !== null && selectedStudent.enrollment.agreedFeeMinor !== undefined ? ( (Number( selectedStudent.enrollment.agreedFeeMinor, ) - Number( selectedStudent.enrollment.discountMinor || 0, )) / 100 ).toLocaleString() : "-"} </p> </div> <div className="sm:col-span-2 lg:col-span-3"> <p className="text-xs font-medium uppercase tracking-wide text-slate-400"> Admission Notes </p> <p className="mt-1 whitespace-pre-wrap text-sm text-slate-900"> {selectedStudent.enrollment.notes || "-"} </p> </div> </div> ) : ( <div className="rounded-lg border border-slate-200 bg-slate-50 px-4 py-4"> <p className="text-sm text-slate-500"> No admission information is available for this student. </p> </div> )} </section> </div> <div className="flex flex-col gap-2 border-t border-slate-200 bg-slate-50 px-5 py-4 sm:flex-row sm:justify-end sm:px-6"> <button type="button" onClick={() => handleEdit(selectedStudent)} className="rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50" > Edit Student </button> <button type="button" onClick={() => handleDeactivate(selectedStudent.id)} disabled={selectedStudent.status === "inactive"} className="rounded-lg border border-rose-200 bg-white px-4 py-2 text-sm font-medium text-rose-600 transition hover:bg-rose-50 disabled:cursor-not-allowed disabled:opacity-40" > Deactivate </button> </div> </div> </div>
+        <div
+          className="fixed inset-0 z-[9999] flex items-center justify-center bg-slate-950/50 p-4 backdrop-blur-sm"
+          onMouseDown={(event) => {
+            if (event.target === event.currentTarget) {
+              handleCloseStudent();
+            }
+          }}
+        >
+          {" "}
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="student-view-title"
+            className="max-h-[92vh] w-full max-w-4xl overflow-y-auto rounded-2xl bg-white shadow-2xl"
+          >
+            {" "}
+            <div className="flex flex-col gap-4 border-b border-slate-200 px-5 py-5 sm:flex-row sm:items-start sm:justify-between sm:px-6">
+              {" "}
+              <div className="flex items-center gap-4">
+                {" "}
+                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-slate-100 text-lg font-semibold text-slate-700">
+                  {selectedStudent.first_name?.charAt(0)}{" "}
+                  {selectedStudent.last_name?.charAt(0)}{" "}
+                </div>{" "}
+                <div>
+                  {" "}
+                  <div className="flex flex-wrap items-center gap-2">
+                    {" "}
+                    <h2
+                      id="student-view-title"
+                      className="text-lg font-semibold text-slate-900"
+                    >
+                      {" "}
+                      {selectedStudent.first_name}{" "}
+                      {selectedStudent.last_name}{" "}
+                    </h2>{" "}
+                    <span
+                      className={`inline-flex rounded-full px-2.5 py-1 text-xs font-medium ${getStatusClasses(selectedStudent.status)}`}
+                    >
+                      {" "}
+                      {formatStatus(selectedStudent.status)}{" "}
+                    </span>{" "}
+                  </div>{" "}
+                  <p className="mt-1 text-sm text-slate-500">
+                    {" "}
+                    {selectedStudent.student_code}{" "}
+                  </p>{" "}
+                </div>{" "}
+              </div>{" "}
+              <button
+                type="button"
+                onClick={handleCloseStudent}
+                className="self-start flex h-9 w-9 items-center justify-center rounded-lg text-xl leading-none text-slate-400 transition hover:bg-slate-100 hover:text-slate-700 focus:outline-none focus:ring-2 focus:ring-slate-200"
+                aria-label="Close"
+              >
+                {" "}
+                ×{" "}
+              </button>{" "}
+            </div>{" "}
+            <div className="space-y-8 px-5 py-6 sm:px-6">
+              {" "}
+              {/* Student Information */}{" "}
+              <section>
+                {" "}
+                <div className="mb-4">
+                  {" "}
+                  <h3 className="text-sm font-semibold text-slate-900">
+                    {" "}
+                    Student Information{" "}
+                  </h3>{" "}
+                  <p className="mt-0.5 text-xs text-slate-500">
+                    {" "}
+                    Personal and contact information.{" "}
+                  </p>{" "}
+                </div>{" "}
+                <div className="grid grid-cols-1 gap-x-8 gap-y-5 sm:grid-cols-2 lg:grid-cols-3">
+                  {" "}
+                  <div>
+                    {" "}
+                    <p className="text-xs font-medium uppercase tracking-wide text-slate-400">
+                      {" "}
+                      Guardian{" "}
+                    </p>{" "}
+                    <p className="mt-1 text-sm text-slate-900">
+                      {" "}
+                      {selectedStudent.guardian_name || "-"}{" "}
+                    </p>{" "}
+                  </div>{" "}
+                  <div>
+                    {" "}
+                    <p className="text-xs font-medium uppercase tracking-wide text-slate-400">
+                      {" "}
+                      Student Phone{" "}
+                    </p>{" "}
+                    <p className="mt-1 text-sm text-slate-900">
+                      {" "}
+                      {selectedStudent.phone || "-"}{" "}
+                    </p>{" "}
+                  </div>{" "}
+                  <div>
+                    {" "}
+                    <p className="text-xs font-medium uppercase tracking-wide text-slate-400">
+                      {" "}
+                      Guardian Phone{" "}
+                    </p>{" "}
+                    <p className="mt-1 text-sm text-slate-900">
+                      {" "}
+                      {selectedStudent.guardian_phone || "-"}{" "}
+                    </p>{" "}
+                  </div>{" "}
+                  <div>
+                    {" "}
+                    <p className="text-xs font-medium uppercase tracking-wide text-slate-400">
+                      {" "}
+                      Email{" "}
+                    </p>{" "}
+                    <p className="mt-1 break-words text-sm text-slate-900">
+                      {" "}
+                      {selectedStudent.email || "-"}{" "}
+                    </p>{" "}
+                  </div>{" "}
+                  <div>
+                    {" "}
+                    <p className="text-xs font-medium uppercase tracking-wide text-slate-400">
+                      {" "}
+                      Date of Birth{" "}
+                    </p>{" "}
+                    <p className="mt-1 text-sm text-slate-900">
+                      {" "}
+                      {formatDate(selectedStudent.date_of_birth)}{" "}
+                    </p>{" "}
+                  </div>
+                  <div>
+                    {" "}
+                    <p className="text-xs font-medium uppercase tracking-wide text-slate-400">
+                      {" "}
+                      Registration Date{" "}
+                    </p>{" "}
+                    <p className="mt-1 text-sm text-slate-900">
+                      {" "}
+                      {formatDate(selectedStudent.joined_at)}{" "}
+                    </p>{" "}
+                  </div>
+                  <div>
+                    <p className="text-xs font-medium uppercase tracking-wide text-slate-400">
+                      Gender
+                    </p>
+
+                    <p className="mt-1 text-sm capitalize text-slate-900">
+                      {selectedStudent.gender || "-"}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-xs font-medium uppercase tracking-wide text-slate-400">
+                      ID Number
+                    </p>
+
+                    <p className="mt-1 text-sm text-slate-900">
+                      {selectedStudent.identity_number || "-"}
+                    </p>
+                  </div>
+                  <div className="sm:col-span-2 lg:col-span-3">
+                    {" "}
+                    <p className="text-xs font-medium uppercase tracking-wide text-slate-400">
+                      {" "}
+                      Address{" "}
+                    </p>{" "}
+                    <p className="mt-1 text-sm text-slate-900">
+                      {" "}
+                      {selectedStudent.address || "-"}{" "}
+                    </p>{" "}
+                  </div>{" "}
+                  <div className="sm:col-span-2 lg:col-span-3">
+                    {" "}
+                    <p className="text-xs font-medium uppercase tracking-wide text-slate-400">
+                      {" "}
+                      Notes{" "}
+                    </p>{" "}
+                    <p className="mt-1 whitespace-pre-wrap text-sm text-slate-900">
+                      {" "}
+                      {selectedStudent.notes || "-"}{" "}
+                    </p>{" "}
+                  </div>{" "}
+                </div>{" "}
+              </section>{" "}
+              {/* Admission Information */}{" "}
+              <section className="border-t border-slate-200 pt-7">
+                {" "}
+                <div className="mb-4">
+                  {" "}
+                  <h3 className="text-sm font-semibold text-slate-900">
+                    {" "}
+                    Admission Information{" "}
+                  </h3>{" "}
+                  <p className="mt-0.5 text-xs text-slate-500">
+                    {" "}
+                    Course, batch, fees and enrollment details.{" "}
+                  </p>{" "}
+                </div>{" "}
+                {selectedStudent.enrollment ? (
+                  <div className="grid grid-cols-1 gap-x-8 gap-y-5 sm:grid-cols-2 lg:grid-cols-3">
+                    {" "}
+                    <div>
+                      {" "}
+                      <p className="text-xs font-medium uppercase tracking-wide text-slate-400">
+                        {" "}
+                        Course{" "}
+                      </p>{" "}
+                      <p className="mt-1 text-sm font-medium text-slate-900">
+                        {" "}
+                        {selectedStudent.enrollment.courseName || "-"}{" "}
+                      </p>{" "}
+                      {selectedStudent.enrollment.courseCode && (
+                        <p className="mt-0.5 text-xs text-slate-500">
+                          {" "}
+                          {selectedStudent.enrollment.courseCode}{" "}
+                        </p>
+                      )}{" "}
+                    </div>{" "}
+                    <div>
+                      {" "}
+                      <p className="text-xs font-medium uppercase tracking-wide text-slate-400">
+                        {" "}
+                        Batch{" "}
+                      </p>{" "}
+                      <p className="mt-1 text-sm font-medium text-slate-900">
+                        {" "}
+                        {selectedStudent.enrollment.batchName ||
+                          "Not assigned"}{" "}
+                      </p>{" "}
+                      {selectedStudent.enrollment.batchCode && (
+                        <p className="mt-0.5 text-xs text-slate-500">
+                          {" "}
+                          {selectedStudent.enrollment.batchCode}{" "}
+                        </p>
+                      )}{" "}
+                    </div>{" "}
+                    <div>
+                      {" "}
+                      <p className="text-xs font-medium uppercase tracking-wide text-slate-400">
+                        {" "}
+                        Trainer{" "}
+                      </p>{" "}
+                      <p className="mt-1 text-sm text-slate-900">
+                        {" "}
+                        {selectedStudent.enrollment.trainerName ||
+                          "Not assigned"}{" "}
+                      </p>{" "}
+                    </div>{" "}
+                    <div>
+                      {" "}
+                      <p className="text-xs font-medium uppercase tracking-wide text-slate-400">
+                        {" "}
+                        Admission Date{" "}
+                      </p>{" "}
+                      <p className="mt-1 text-sm text-slate-900">
+                        {" "}
+                        {formatDate(selectedStudent.enrollment.enrolledAt)}{" "}
+                      </p>{" "}
+                    </div>{" "}
+                    <div>
+                      {" "}
+                      <p className="text-xs font-medium uppercase tracking-wide text-slate-400">
+                        {" "}
+                        Enrollment Status{" "}
+                      </p>{" "}
+                      <p className="mt-1">
+                        {" "}
+                        <span className="inline-flex rounded-full bg-slate-100 px-2.5 py-1 text-xs font-medium capitalize text-slate-700">
+                          {" "}
+                          {formatStatus(selectedStudent.status) || "-"}{" "}
+                        </span>{" "}
+                      </p>{" "}
+                    </div>{" "}
+                    <div>
+                      {" "}
+                      <p className="text-xs font-medium uppercase tracking-wide text-slate-400">
+                        {" "}
+                        Currency{" "}
+                      </p>{" "}
+                      <p className="mt-1 text-sm text-slate-900">
+                        {" "}
+                        {selectedStudent.enrollment.currencyCode || "-"}{" "}
+                      </p>{" "}
+                    </div>{" "}
+                    <div>
+                      {" "}
+                      <p className="text-xs font-medium uppercase tracking-wide text-slate-400">
+                        {" "}
+                        Agreed Fee{" "}
+                      </p>{" "}
+                      <p className="mt-1 text-sm font-medium text-slate-900">
+                        {" "}
+                        {selectedStudent.enrollment.agreedFeeMinor !== null &&
+                        selectedStudent.enrollment.agreedFeeMinor !== undefined
+                          ? Number(selectedStudent.enrollment.agreedFeeMinor) /
+                            100
+                          : "-"}{" "}
+                      </p>{" "}
+                    </div>{" "}
+                    <div>
+                      {" "}
+                      <p className="text-xs font-medium uppercase tracking-wide text-slate-400">
+                        {" "}
+                        Discount{" "}
+                      </p>{" "}
+                      <p className="mt-1 text-sm text-slate-900">
+                        {" "}
+                        {selectedStudent.enrollment.discountMinor !== null &&
+                        selectedStudent.enrollment.discountMinor !== undefined
+                          ? Number(selectedStudent.enrollment.discountMinor) /
+                            100
+                          : "-"}{" "}
+                      </p>{" "}
+                    </div>
+                    <div>
+                      <p className="text-xs font-medium uppercase tracking-wide text-slate-400">
+                        Registration Fee
+                      </p>
+
+                      <p className="mt-1 text-sm font-medium text-slate-900">
+                        {selectedStudent.enrollment.registrationFeeMinor !==
+                          null &&
+                        selectedStudent.enrollment.registrationFeeMinor !==
+                          undefined
+                          ? (
+                              Number(
+                                selectedStudent.enrollment.registrationFeeMinor,
+                              ) / 100
+                            ).toLocaleString()
+                          : "-"}
+                      </p>
+                    </div>
+                    <div>
+                      {" "}
+                      <p className="text-xs font-medium uppercase tracking-wide text-slate-400">
+                        {" "}
+                        Final Fee{" "}
+                      </p>{" "}
+                      <p className="mt-1 text-sm font-semibold text-slate-900">
+                        {" "}
+                        {selectedStudent.enrollment.agreedFeeMinor !== null &&
+                        selectedStudent.enrollment.agreedFeeMinor !== undefined
+                          ? (
+                              (Number(
+                                selectedStudent.enrollment.agreedFeeMinor,
+                              ) -
+                                Number(
+                                  selectedStudent.enrollment.discountMinor || 0,
+                                )) /
+                              100
+                            ).toLocaleString()
+                          : "-"}{" "}
+                      </p>{" "}
+                    </div>{" "}
+                    <div className="sm:col-span-2 lg:col-span-3">
+                      {" "}
+                      <p className="text-xs font-medium uppercase tracking-wide text-slate-400">
+                        {" "}
+                        Admission Notes{" "}
+                      </p>{" "}
+                      <p className="mt-1 whitespace-pre-wrap text-sm text-slate-900">
+                        {" "}
+                        {selectedStudent.enrollment.notes || "-"}{" "}
+                      </p>{" "}
+                    </div>{" "}
+                  </div>
+                ) : (
+                  <div className="rounded-lg border border-slate-200 bg-slate-50 px-4 py-4">
+                    {" "}
+                    <p className="text-sm text-slate-500">
+                      {" "}
+                      No admission information is available for this
+                      student.{" "}
+                    </p>{" "}
+                  </div>
+                )}{" "}
+              </section>{" "}
+            </div>{" "}
+            <div className="flex flex-col gap-2 border-t border-slate-200 bg-slate-50 px-5 py-4 sm:flex-row sm:justify-end sm:px-6">
+              {" "}
+              <button
+                type="button"
+                onClick={() => handleEdit(selectedStudent)}
+                className="rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50"
+              >
+                {" "}
+                Edit Student{" "}
+              </button>{" "}
+              <button
+                type="button"
+                onClick={() => handleDeactivate(selectedStudent.id)}
+                disabled={selectedStudent.status === "inactive"}
+                className="rounded-lg border border-rose-200 bg-white px-4 py-2 text-sm font-medium text-rose-600 transition hover:bg-rose-50 disabled:cursor-not-allowed disabled:opacity-40"
+              >
+                {" "}
+                Deactivate{" "}
+              </button>{" "}
+            </div>{" "}
+          </div>{" "}
+        </div>
       )}
     </div>
   );
