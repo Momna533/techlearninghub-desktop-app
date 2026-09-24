@@ -1,6 +1,6 @@
-const { getDatabase } = require('./connection');
+const { getDatabase } = require("./connection");
 
-function findStudents({ search = '', status = 'all' } = {}) {
+function findStudents({ search = "", status = "all" } = {}) {
   const database = getDatabase();
 
   const conditions = [];
@@ -21,22 +21,25 @@ function findStudents({ search = '', status = 'all' } = {}) {
     parameters.search = `%${search.trim()}%`;
   }
 
-  if (status !== 'all') {
-    conditions.push('status = $status');
+  if (status !== "all") {
+    conditions.push("status = $status");
     parameters.status = status;
   }
 
   const whereClause = conditions.length
-    ? `WHERE ${conditions.join(' AND ')}`
-    : '';
+    ? `WHERE ${conditions.join(" AND ")}`
+    : "";
 
   return database
-    .prepare(`
+    .prepare(
+      `
       SELECT
         id,
         student_code,
         first_name,
         last_name,
+         gender,
+  identity_number,
         email,
         phone,
         guardian_name,
@@ -51,7 +54,8 @@ function findStudents({ search = '', status = 'all' } = {}) {
       FROM students
       ${whereClause}
       ORDER BY last_name ASC, first_name ASC
-    `)
+    `,
+    )
     .all(parameters);
 }
 
@@ -59,12 +63,15 @@ function findStudentById(id) {
   const database = getDatabase();
 
   return database
-    .prepare(`
+    .prepare(
+      `
       SELECT
         id,
         student_code,
         first_name,
         last_name,
+         gender,
+  identity_number,
         email,
         phone,
         guardian_name,
@@ -79,7 +86,8 @@ function findStudentById(id) {
       FROM students
       WHERE id = ?
       LIMIT 1
-    `)
+    `,
+    )
     .get(id);
 }
 
@@ -87,12 +95,15 @@ function findStudentByCode(studentCode) {
   const database = getDatabase();
 
   return database
-    .prepare(`
+    .prepare(
+      `
       SELECT
         id,
         student_code,
         first_name,
         last_name,
+         gender,
+  identity_number,
         email,
         phone,
         guardian_name,
@@ -107,7 +118,8 @@ function findStudentByCode(studentCode) {
       FROM students
       WHERE student_code = ?
       LIMIT 1
-    `)
+    `,
+    )
     .get(studentCode.trim());
 }
 
@@ -115,11 +127,14 @@ function createStudent(student) {
   const database = getDatabase();
 
   const result = database
-    .prepare(`
+    .prepare(
+      `
       INSERT INTO students (
         student_code,
         first_name,
         last_name,
+        gender,
+  identity_number,
         email,
         phone,
         guardian_name,
@@ -133,6 +148,8 @@ function createStudent(student) {
         @studentCode,
         @firstName,
         @lastName,
+         @gender,
+  @identityNumber,
         @email,
         @phone,
         @guardianName,
@@ -142,11 +159,14 @@ function createStudent(student) {
         @status,
         @notes
       )
-    `)
+    `,
+    )
     .run({
       studentCode: student.studentCode,
       firstName: student.firstName,
       lastName: student.lastName,
+      gender: student.gender,
+      identityNumber: student.identityNumber,
       email: student.email,
       phone: student.phone,
       guardianName: student.guardianName,
@@ -164,12 +184,15 @@ function updateStudent(id, student) {
   const database = getDatabase();
 
   database
-    .prepare(`
+    .prepare(
+      `
       UPDATE students
       SET
         student_code = @studentCode,
         first_name = @firstName,
         last_name = @lastName,
+        gender = @gender,
+identity_number = @identityNumber,
         email = @email,
         phone = @phone,
         guardian_name = @guardianName,
@@ -180,12 +203,15 @@ function updateStudent(id, student) {
         notes = @notes,
         updated_at = CURRENT_TIMESTAMP
       WHERE id = @id
-    `)
+    `,
+    )
     .run({
       id,
       studentCode: student.studentCode,
       firstName: student.firstName,
       lastName: student.lastName,
+      gender: student.gender,
+      identityNumber: student.identityNumber,
       email: student.email,
       phone: student.phone,
       guardianName: student.guardianName,
@@ -203,13 +229,15 @@ function deactivateStudent(id) {
   const database = getDatabase();
 
   database
-    .prepare(`
+    .prepare(
+      `
       UPDATE students
       SET
         status = 'inactive',
         updated_at = CURRENT_TIMESTAMP
       WHERE id = ?
-    `)
+    `,
+    )
     .run(id);
 
   return findStudentById(id);

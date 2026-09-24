@@ -86,6 +86,8 @@ CREATE TABLE students (
   student_code TEXT NOT NULL UNIQUE,
   first_name TEXT NOT NULL,
   last_name TEXT NOT NULL,
+  gender TEXT,
+  identity_number TEXT,
   email TEXT COLLATE NOCASE,
   phone TEXT,
   guardian_name TEXT,
