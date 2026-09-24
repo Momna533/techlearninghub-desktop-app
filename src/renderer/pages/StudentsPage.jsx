@@ -149,8 +149,10 @@ function StudentsPage() {
     }
   }
 
-  function formatStatus(studentStatus) {
-    return studentStatus.charAt(0).toUpperCase() + studentStatus.slice(1);
+  function formatStatus(value) {
+    if (!value) return "-";
+
+    return value.charAt(0).toUpperCase() + value.slice(1);
   }
 
   function formatDate(date) {
@@ -829,9 +831,12 @@ function StudentsPage() {
                       <p className="mt-1">
                         {" "}
                         <span className="inline-flex rounded-full bg-slate-100 px-2.5 py-1 text-xs font-medium capitalize text-slate-700">
-                          {" "}
-                          {formatStatus(selectedStudent.status) || "-"}{" "}
-                        </span>{" "}
+                          {selectedStudent.enrollment.enrollmentStatus
+                            ? formatStatus(
+                                selectedStudent.enrollment.enrollmentStatus,
+                              )
+                            : "-"}
+                        </span>
                       </p>{" "}
                     </div>{" "}
                     <div>
@@ -852,12 +857,14 @@ function StudentsPage() {
                         Agreed Fee{" "}
                       </p>{" "}
                       <p className="mt-1 text-sm font-medium text-slate-900">
-                        {" "}
                         {selectedStudent.enrollment.agreedFeeMinor !== null &&
                         selectedStudent.enrollment.agreedFeeMinor !== undefined
-                          ? Number(selectedStudent.enrollment.agreedFeeMinor) /
-                            100
-                          : "-"}{" "}
+                          ? (
+                              Number(
+                                selectedStudent.enrollment.agreedFeeMinor,
+                              ) / 100
+                            ).toLocaleString()
+                          : "-"}
                       </p>{" "}
                     </div>{" "}
                     <div>
@@ -870,9 +877,11 @@ function StudentsPage() {
                         {" "}
                         {selectedStudent.enrollment.discountMinor !== null &&
                         selectedStudent.enrollment.discountMinor !== undefined
-                          ? Number(selectedStudent.enrollment.discountMinor) /
-                            100
-                          : "-"}{" "}
+                          ? (
+                              Number(selectedStudent.enrollment.discountMinor) /
+                              100
+                            ).toLocaleString()
+                          : "-"}
                       </p>{" "}
                     </div>
                     <div>
@@ -894,7 +903,6 @@ function StudentsPage() {
                       </p>
                     </div>
                     <div>
-                      {" "}
                       <p className="text-xs font-medium uppercase tracking-wide text-slate-400">
                         {" "}
                         Final Fee{" "}
