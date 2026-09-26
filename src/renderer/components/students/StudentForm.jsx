@@ -83,7 +83,7 @@ function StudentForm({
       return;
     }
 
-    console.log("[StudentForm] Student received for edit:", student);
+
     setForm({
       studentCode: student.student_code || "",
       firstName: student.first_name || "",
@@ -586,6 +586,8 @@ function StudentForm({
           studentCode: form.studentCode,
           firstName: form.firstName,
           lastName: form.lastName,
+         gender: form.gender,
+  identityNumber: form.identityNumber,
           guardianName: form.guardianName,
           guardianPhone: form.guardianPhone,
           phone: form.phone,
@@ -642,10 +644,14 @@ function StudentForm({
         return;
       }
 
+      console.log("form submitted",form.gender,form.identityNumber)
+
       const result = await createAdmission({
         studentCode: form.studentCode,
         firstName: form.firstName,
         lastName: form.lastName,
+        gender: form.gender,
+  identityNumber: form.identityNumber,
         guardianName: form.guardianName,
         guardianPhone: form.guardianPhone,
         phone: form.phone,

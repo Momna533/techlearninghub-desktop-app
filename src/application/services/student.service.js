@@ -65,8 +65,6 @@ export function getStudent(id) {
 
   const enrollments = findStudentEnrollments(id);
 
-  console.log("[student:get] enrollment:", enrollments[0] || null);
-
   return {
     ...student,
     enrollment: enrollments[0] || null,
