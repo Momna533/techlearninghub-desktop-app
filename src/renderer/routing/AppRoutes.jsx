@@ -18,6 +18,7 @@ import ClientsPage from "../pages/ClientsPage";
 // import ProposalsPage from '../pages/ProposalsPage';
 import ProjectsPage from "../pages/ProjectsPage";
 import ProjectMembersPage from "../pages/ProjectMembersPage";
+import MilestonesPage from "../pages/MilestonesPage";
 // import TasksPage from '../pages/TasksPage';
 import TeamsPage from "../pages/TeamsPage";
 import TeamMembersPage from "../pages/TeamMembersPage";
@@ -54,6 +55,7 @@ const PAGE_COMPONENTS = {
   // ProposalsPage,
   ProjectsPage,
   ProjectMembersPage,
+  MilestonesPage,
   // TasksPage,
   TeamsPage,
   TeamMembersPage,

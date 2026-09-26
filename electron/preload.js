@@ -168,4 +168,16 @@ contextBridge.exposeInMainWorld("desktop", {
 
     remove: (id) => ipcRenderer.invoke("project-members:remove", id),
   },
+  milestones: {
+    list: (filters = {}) => ipcRenderer.invoke("milestones:list", filters),
+
+    get: (id) => ipcRenderer.invoke("milestones:get", id),
+
+    create: (milestone) => ipcRenderer.invoke("milestones:create", milestone),
+
+    update: (payload) => ipcRenderer.invoke("milestones:update", payload),
+
+    changeStatus: (payload) =>
+      ipcRenderer.invoke("milestones:change-status", payload),
+  },
 });

@@ -26,6 +26,7 @@ const { registerTeamMemberIpc } = require("./ipc/team-member.ipc");
 const { registerStudentPaymentIpc } = require("./ipc/student-payment.ipc");
 const { registerProjectIpc } = require("./ipc/projects.ipc");
 const { registerProjectMemberIpc } = require("./ipc/project-member.ipc");
+const { registerMilestoneIpc } = require("./ipc/milestones.ipc");
 
 const { runShellSmoke } = require("./smoke-shell");
 
@@ -99,6 +100,7 @@ app.whenReady().then(async () => {
   registerStudentPaymentIpc({ ipcMain });
   registerProjectIpc({ ipcMain });
   registerProjectMemberIpc({ ipcMain });
+  registerMilestoneIpc({ ipcMain });
 
   createMainWindow();
 

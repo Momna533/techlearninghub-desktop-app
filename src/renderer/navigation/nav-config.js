@@ -108,6 +108,14 @@ export const NAV_SECTIONS = Object.freeze([
         icon: "FolderKanban",
       },
       {
+        id: "milestones",
+        label: "Milestones",
+        path: "/software/milestones",
+        page: "MilestonesPage",
+        permission: PERMISSIONS.SOFTWARE_PROJECTS_VIEW,
+        icon: "FolderKanban",
+      },
+      {
         id: "tasks",
         label: "Tasks",
         path: "/software/tasks",
