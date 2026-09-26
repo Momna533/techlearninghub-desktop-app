@@ -156,4 +156,16 @@ contextBridge.exposeInMainWorld("desktop", {
     changeStatus: (payload) =>
       ipcRenderer.invoke("projects:change-status", payload),
   },
+
+  projectMembers: {
+    list: (filters = {}) => ipcRenderer.invoke("project-members:list", filters),
+
+    get: (id) => ipcRenderer.invoke("project-members:get", id),
+
+    create: (member) => ipcRenderer.invoke("project-members:create", member),
+
+    update: (payload) => ipcRenderer.invoke("project-members:update", payload),
+
+    remove: (id) => ipcRenderer.invoke("project-members:remove", id),
+  },
 });
