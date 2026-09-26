@@ -89,57 +89,51 @@ contextBridge.exposeInMainWorld("desktop", {
     create: (admission) => ipcRenderer.invoke("admissions:create", admission),
   },
   clients: {
-  list: (filters = {}) => ipcRenderer.invoke("clients:list", filters),
+    list: (filters = {}) => ipcRenderer.invoke("clients:list", filters),
 
-  get: (id) => ipcRenderer.invoke("clients:get", id),
+    get: (id) => ipcRenderer.invoke("clients:get", id),
 
-  create: (client) => ipcRenderer.invoke("clients:create", client),
+    create: (client) => ipcRenderer.invoke("clients:create", client),
 
-  update: (payload) => ipcRenderer.invoke("clients:update", payload),
+    update: (payload) => ipcRenderer.invoke("clients:update", payload),
 
-  deactivate: (id) => ipcRenderer.invoke("clients:deactivate", id),
+    deactivate: (id) => ipcRenderer.invoke("clients:deactivate", id),
 
-  archive: (id) => ipcRenderer.invoke("clients:archive", id),
-},
-teams: {
-  list: (filters = {}) => ipcRenderer.invoke("teams:list", filters),
+    archive: (id) => ipcRenderer.invoke("clients:archive", id),
+  },
+  teams: {
+    list: (filters = {}) => ipcRenderer.invoke("teams:list", filters),
 
-  get: (id) => ipcRenderer.invoke("teams:get", id),
+    get: (id) => ipcRenderer.invoke("teams:get", id),
 
-  create: (team) => ipcRenderer.invoke("teams:create", team),
+    create: (team) => ipcRenderer.invoke("teams:create", team),
 
-  update: (payload) => ipcRenderer.invoke("teams:update", payload),
+    update: (payload) => ipcRenderer.invoke("teams:update", payload),
 
-  deactivate: (id) => ipcRenderer.invoke("teams:deactivate", id),
+    deactivate: (id) => ipcRenderer.invoke("teams:deactivate", id),
 
-  archive: (id) => ipcRenderer.invoke("teams:archive", id),
-},
-employees: {
-  list: (filters = {}) => ipcRenderer.invoke("employees:list", filters),
-  get: (id) => ipcRenderer.invoke("employees:get", id),
-  create: (employee) => ipcRenderer.invoke("employees:create", employee),
-  update: (payload) => ipcRenderer.invoke("employees:update", payload),
-  deactivate: (id) => ipcRenderer.invoke("employees:deactivate", id),
-},
-teamMembers: {
-  list: (filters = {}) =>
-    ipcRenderer.invoke("team-members:list", filters),
+    archive: (id) => ipcRenderer.invoke("teams:archive", id),
+  },
+  employees: {
+    list: (filters = {}) => ipcRenderer.invoke("employees:list", filters),
+    get: (id) => ipcRenderer.invoke("employees:get", id),
+    create: (employee) => ipcRenderer.invoke("employees:create", employee),
+    update: (payload) => ipcRenderer.invoke("employees:update", payload),
+    deactivate: (id) => ipcRenderer.invoke("employees:deactivate", id),
+  },
+  teamMembers: {
+    list: (filters = {}) => ipcRenderer.invoke("team-members:list", filters),
 
-  get: (id) =>
-    ipcRenderer.invoke("team-members:get", id),
+    get: (id) => ipcRenderer.invoke("team-members:get", id),
 
-  create: (member) =>
-    ipcRenderer.invoke("team-members:create", member),
+    create: (member) => ipcRenderer.invoke("team-members:create", member),
 
-  update: (payload) =>
-    ipcRenderer.invoke("team-members:update", payload),
+    update: (payload) => ipcRenderer.invoke("team-members:update", payload),
 
-  remove: (id) =>
-    ipcRenderer.invoke("team-members:remove", id),
-},
+    remove: (id) => ipcRenderer.invoke("team-members:remove", id),
+  },
   studentPayments: {
-    create: (payment) =>
-      ipcRenderer.invoke("student-payments:create", payment),
+    create: (payment) => ipcRenderer.invoke("student-payments:create", payment),
 
     list: (enrollmentId) =>
       ipcRenderer.invoke("student-payments:list", enrollmentId),
@@ -147,7 +141,19 @@ teamMembers: {
     summary: (enrollmentId) =>
       ipcRenderer.invoke("student-payments:summary", enrollmentId),
 
-    get: (id) =>
-      ipcRenderer.invoke("student-payments:get", id),
+    get: (id) => ipcRenderer.invoke("student-payments:get", id),
+  },
+
+  projects: {
+    list: (filters = {}) => ipcRenderer.invoke("projects:list", filters),
+
+    get: (id) => ipcRenderer.invoke("projects:get", id),
+
+    create: (project) => ipcRenderer.invoke("projects:create", project),
+
+    update: (payload) => ipcRenderer.invoke("projects:update", payload),
+
+    changeStatus: (payload) =>
+      ipcRenderer.invoke("projects:change-status", payload),
   },
 });

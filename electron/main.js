@@ -23,9 +23,9 @@ const { registerClientIpc } = require("./ipc/client.ipc");
 const { registerTeamIpc } = require("./ipc/team.ipc");
 const { registerEmployeeIpc } = require("./ipc/employee.ipc");
 const { registerTeamMemberIpc } = require("./ipc/team-member.ipc");
-const {
-  registerStudentPaymentIpc,
-} = require("./ipc/student-payment.ipc");
+const { registerStudentPaymentIpc } = require("./ipc/student-payment.ipc");
+const { registerProjectIpc } = require("./ipc/projects.ipc");
+
 const { runShellSmoke } = require("./smoke-shell");
 
 const isDevelopment = Boolean(process.env.ELECTRON_RENDERER_URL);
@@ -96,6 +96,7 @@ app.whenReady().then(async () => {
   registerEmployeeIpc({ ipcMain });
   registerTeamMemberIpc({ ipcMain });
   registerStudentPaymentIpc({ ipcMain });
+  registerProjectIpc({ ipcMain });
 
   createMainWindow();
 
